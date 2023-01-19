@@ -92,6 +92,8 @@ We previously registered `SimpleViewAccessChecker` to observe all routes as they
 `SimpleViewAccessChecker` will read the annotations present on the route and will make a decision
 whether to allow access or not.
 
+TODO describe all security annotations in detail. + maybe a link to Vaadin documentation
+
 ## Users stored in SQL
 
 We recommend to use [jdbi-orm](https://gitlab.com/mvysny/jdbi-orm) to access the database,
