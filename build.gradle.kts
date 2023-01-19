@@ -1,5 +1,7 @@
 plugins {
-    id("java")
+    `maven-publish`
+    java
+    signing
 }
 
 defaultTasks("clean", "build")
@@ -23,6 +25,61 @@ java {
     withSourcesJar()
 }
 
-tasks.getByName<Test>("test") {
+tasks.withType<Javadoc> {
+    isFailOnError = false
+}
+
+publishing {
+    repositories {
+        maven {
+            setUrl("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials {
+                username = project.properties["ossrhUsername"] as String? ?: "Unknown user"
+                password = project.properties["ossrhPassword"] as String? ?: "Unknown user"
+            }
+        }
+    }
+    publications {
+        create("mavenJava", MavenPublication::class.java).apply {
+            groupId = project.group.toString()
+            this.artifactId = "vaadin-simple-security"
+            version = project.version.toString()
+            pom {
+                description.set("Very simple security framework for Vaadin")
+                name.set("Vaadin-Simple-Security")
+                url.set("https://github.com/mvysny/vaadin-simple-security")
+                licenses {
+                    license {
+                        name.set("The MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("mavi")
+                        name.set("Martin Vysny")
+                        email.set("martin@vysny.me")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/mvysny/vaadin-simple-security")
+                }
+            }
+            from(components["java"])
+        }
+    }
+}
+
+signing {
+    sign(publishing.publications["mavenJava"])
+}
+
+tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging {
+        // to see the exceptions of failed tests in Travis-CI console.
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStandardStreams = true
+    }
 }
