@@ -2,8 +2,10 @@ plugins {
     id("java")
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+defaultTasks("clean", "build")
+
+group = "com.github.mvysny.vaadin-simple-security"
+version = "0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
