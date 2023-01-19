@@ -18,7 +18,7 @@ public final class InMemoryUserRegistry {
     private static final InMemoryUserRegistry INSTANCE = new InMemoryUserRegistry();
 
     @NotNull
-    public static InMemoryUserRegistry getInstance() {
+    public static InMemoryUserRegistry get() {
         return INSTANCE;
     }
 

@@ -1,11 +1,9 @@
 package com.github.mvysny.vaadinsimplesecurity.inmemory;
 
-import com.github.mvysny.vaadinsimplesecurity.BasicUserPrincipal;
 import com.github.mvysny.vaadinsimplesecurity.HasPassword;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.security.Principal;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -38,11 +36,6 @@ public final class InMemoryUser implements Serializable, HasPassword {
     @NotNull
     public Set<String> getRoles() {
         return new HashSet<>(roles);
-    }
-
-    @NotNull
-    public Principal toPrincipal() {
-        return new BasicUserPrincipal(getUsername());
     }
 
     @Override

@@ -22,8 +22,6 @@ import javax.annotation.security.PermitAll
 import javax.annotation.security.RolesAllowed
 import kotlin.test.expect
 
-private fun checkUIThread(): UI = UI.getCurrent() ?: throw IllegalStateException("Not in UI thread, or UI.init() is currently ongoing")
-
 /**
  * A view with no parent layout.
  */
@@ -68,13 +66,13 @@ class VokViewAccessCheckerTest : DynaTest({
     lateinit var routes: Routes
     beforeGroup {
         routes = Routes().autoDiscoverViews("com.github.mvysny.vaadinsimplesecurity")
-        InMemoryUserRegistry.getInstance().clear()
-        InMemoryUserRegistry.getInstance().registerUser(InMemoryUser("admin", "admin", setOf("admin")))
-        InMemoryUserRegistry.getInstance().registerUser(InMemoryUser("user", "user", setOf("user")))
-        InMemoryUserRegistry.getInstance().registerUser(InMemoryUser("sales", "sales", setOf("sales")))
+        InMemoryUserRegistry.get().clear()
+        InMemoryUserRegistry.get().registerUser(InMemoryUser("admin", "admin", setOf("admin")))
+        InMemoryUserRegistry.get().registerUser(InMemoryUser("user", "user", setOf("user")))
+        InMemoryUserRegistry.get().registerUser(InMemoryUser("sales", "sales", setOf("sales")))
     }
     afterGroup {
-        InMemoryUserRegistry.getInstance().clear()
+        InMemoryUserRegistry.get().clear()
     }
     beforeEach {
         MockVaadin.setup(routes, uiFactory = { MockedUIWithViewAccessChecker() })

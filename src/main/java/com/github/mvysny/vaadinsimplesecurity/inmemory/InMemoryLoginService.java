@@ -29,7 +29,7 @@ public final class InMemoryLoginService extends AbstractLoginService<InMemoryUse
      * on failure.
      */
     public void login(@NotNull String username, @NotNull String password) throws LoginException {
-        final InMemoryUser user = InMemoryUserRegistry.getInstance().findByUsername(username);
+        final InMemoryUser user = InMemoryUserRegistry.get().findByUsername(username);
         if (user == null) {
             throw new FailedLoginException("Invalid username or password");
         }
