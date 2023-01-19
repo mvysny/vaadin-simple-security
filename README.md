@@ -177,3 +177,5 @@ A standalone library will then be created.
 
 Your best bet is to implement your own `MyLoginService` and offer a `login()` function which
 could for example authenticate the user against an LDAP server.
+
+TODO steal more from vok security.md
