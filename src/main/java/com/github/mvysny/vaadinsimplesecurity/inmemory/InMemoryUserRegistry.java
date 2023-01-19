@@ -32,6 +32,10 @@ public final class InMemoryUserRegistry {
         users.add(user);
     }
 
+    public void clear() {
+        users.clear();
+    }
+
     @Nullable
     public InMemoryUser findByUsername(@NotNull String username) {
         return users.stream()

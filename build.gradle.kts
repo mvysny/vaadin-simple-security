@@ -1,4 +1,5 @@
 plugins {
+    kotlin("jvm") version "1.8.0"
     `maven-publish`
     java
     `java-library`
@@ -23,11 +24,13 @@ dependencies {
     compileOnly("javax.servlet:javax.servlet-api:4.0.1")
 
     // tests
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+    testImplementation("com.github.mvysny.dynatest:dynatest:0.24")
     testImplementation("com.vaadin:vaadin-core:${properties["vaadin_version"]}")
     testImplementation("javax.servlet:javax.servlet-api:4.0.1")
     testImplementation("com.github.mvysny.kaributesting:karibu-testing-v23:${properties["karibu_testing_version"]}")
+    // remember this is a Java project :) Kotlin only for tests
+    testImplementation(kotlin("stdlib-jdk8"))
+    testImplementation("org.slf4j:slf4j-simple:${properties["slf4j_version"]}")
 }
 
 java {
@@ -35,6 +38,10 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
     withJavadocJar()
     withSourcesJar()
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = "11"
 }
 
 tasks.withType<Javadoc> {
