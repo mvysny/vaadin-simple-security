@@ -94,6 +94,9 @@ whether to allow access or not.
 
 ## Users stored in SQL
 
+We recommend to use [jdbi-orm](https://gitlab.com/mvysny/jdbi-orm) to access the database,
+however you can of course use your favourite library.
+
 An example of such a service follows:
 ```java
 public final class MyLoginService extends AbstractLoginService<User> {
@@ -139,8 +142,10 @@ public class MyLoggedInUserProvider implements LoggedInUserProvider {
 }
 ```
 
-We recommend to use [jdbi-orm](https://gitlab.com/mvysny/jdbi-orm) to access the database,
-however you can of course use your favourite library.
+The `User` entity represents an user stored in a database table. It implements `HasPassword` which
+takes care of password hashing+salting, and of password verification.
+
+TODO User entity example, plus SQL DDL of the Users table.
 
 ## Other Authentication mechanisms
 
