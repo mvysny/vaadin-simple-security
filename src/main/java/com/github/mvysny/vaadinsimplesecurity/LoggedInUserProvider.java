@@ -4,6 +4,7 @@ import com.vaadin.flow.server.VaadinSession;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.Set;
@@ -17,14 +18,14 @@ import java.util.Set;
  * <p></p>
  * Called from {@link SimpleViewAccessChecker}.
  */
-public abstract class LoggedInUserProvider {
+public interface LoggedInUserProvider extends Serializable {
     /**
      * Returns the currently logged-in user.
      * @return logged-in user if any, null if no user is currently logged in.
      * You can use {@link BasicUserPrincipal} for convenience.
      */
     @Nullable
-    public abstract Principal getCurrentUser();
+    Principal getCurrentUser();
 
     /**
      * Returns the roles assigned to the currently logged-in user.
@@ -34,13 +35,26 @@ public abstract class LoggedInUserProvider {
      * The roles are later on checked
      */
     @NotNull
-    public abstract Set<String> getCurrentUserRoles();
+    Set<String> getCurrentUserRoles();
+
+    default boolean isLoggedIn() {
+        return getCurrentUser() != null;
+    }
+
+    /**
+     * Checks whether the currently logged-in user contains given role.
+     * If there is no user currently logged in, the function will always
+     * return false.
+     */
+    default boolean hasRole(@NotNull String role) {
+        return getCurrentUserRoles().contains(role);
+    }
 
     /**
      * Provider which always returns null user: the user is always logged out.
      */
     @NotNull
-    public static final LoggedInUserProvider LOGGED_OUT = new LoggedInUserProvider() {
+    LoggedInUserProvider LOGGED_OUT = new LoggedInUserProvider() {
         @Override
         public @Nullable Principal getCurrentUser() {
             return null;
@@ -51,27 +65,4 @@ public abstract class LoggedInUserProvider {
             return Collections.emptySet();
         }
     };
-
-    /**
-     * Always throws {@link UnsupportedOperationException}; tells you to change {@link #CURRENT} to
-     * your implementation.
-     */
-    @NotNull
-    public static final LoggedInUserProvider UNIMPLEMENTED = new LoggedInUserProvider() {
-        @Override
-        public @Nullable Principal getCurrentUser() {
-            throw new UnsupportedOperationException("The LoggedInUserProvider has not been set. Please set LoggedInUserProvider.CURRENT to a provider which looks up the currently logged-in user.");
-        }
-
-        @Override
-        public @NotNull Set<String> getCurrentUserRoles() {
-            throw new UnsupportedOperationException("The LoggedInUserProvider has not been set. Please set LoggedInUserProvider.CURRENT to a provider which looks up the currently logged-in user.");
-        }
-    };
-
-    /**
-     * The current provider. Defaults to {@link #UNIMPLEMENTED}; implement a provider which looks up the user object in your app.
-     */
-    @NotNull
-    public static LoggedInUserProvider CURRENT = UNIMPLEMENTED;
 }

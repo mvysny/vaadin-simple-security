@@ -68,7 +68,6 @@ class VokViewAccessCheckerTest : DynaTest({
     lateinit var routes: Routes
     beforeGroup {
         routes = Routes().autoDiscoverViews("com.github.mvysny.vaadinsimplesecurity")
-        LoggedInUserProvider.CURRENT = InMemoryLoggedInUserProvider()
         InMemoryUserRegistry.getInstance().clear()
         InMemoryUserRegistry.getInstance().registerUser(InMemoryUser("admin", "admin", setOf("admin")))
         InMemoryUserRegistry.getInstance().registerUser(InMemoryUser("user", "user", setOf("user")))
@@ -76,7 +75,6 @@ class VokViewAccessCheckerTest : DynaTest({
     }
     afterGroup {
         InMemoryUserRegistry.getInstance().clear()
-        LoggedInUserProvider.CURRENT = LoggedInUserProvider.UNIMPLEMENTED
     }
     beforeEach {
         MockVaadin.setup(routes, uiFactory = { MockedUIWithViewAccessChecker() })
@@ -185,7 +183,7 @@ class VokViewAccessCheckerTest : DynaTest({
 class MockedUIWithViewAccessChecker : MockedUI() {
     override fun init(request: VaadinRequest) {
         super.init(request)
-        val checker = SimpleViewAccessChecker()
+        val checker = SimpleViewAccessChecker(InMemoryLoggedInUserProvider())
         checker.setLoginView(LoginView::class.java)
         addBeforeEnterListener(checker)
     }

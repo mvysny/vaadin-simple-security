@@ -12,7 +12,7 @@ import java.util.Set;
  * Provides currently logged-in users from {@link InMemoryLoginService}.
  * Set this provider to {@link LoggedInUserProvider#CURRENT} to activate.
  */
-public class InMemoryLoggedInUserProvider extends LoggedInUserProvider {
+public class InMemoryLoggedInUserProvider implements LoggedInUserProvider {
     @Override
     public @Nullable Principal getCurrentUser() {
         final InMemoryUser currentUser = InMemoryLoginService.get().getCurrentUser();

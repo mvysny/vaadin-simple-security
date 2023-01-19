@@ -16,26 +16,35 @@ import java.util.function.Function;
 
 /**
  * Checks that the current user has rights to access given route.
- * Obtains the user from {@link LoggedInUserProvider#CURRENT} rather than from
+ * Obtains the user from given {@link LoggedInUserProvider} rather than from
  * {@link HttpServletRequest#getUserPrincipal()} and {@link HttpServletRequest#isUserInRole(String)}.
  * <p></p>
  * Install this as a {@link BeforeEnterListener} to your UI via {@link UI#addBeforeEnterListener(BeforeEnterListener)}.
  * The best way to do that is to register your {@link VaadinServiceInitListener},
  * then install {@link UIInitListener} via {@link VaadinService#addUIInitListener(UIInitListener)},
  * then register this to your UI.
- * <p></p>
- * Don't forget to install a proper {@link LoggedInUserProvider#CURRENT logged-in user provider} for your project.
  */
 public class SimpleViewAccessChecker extends ViewAccessChecker {
+    @NotNull
+    private final LoggedInUserProvider loggedInUserProvider;
+
+    /**
+     * Creates the checker.
+     * @param loggedInUserProvider obtain the user from this provider.
+     */
+    public SimpleViewAccessChecker(@NotNull LoggedInUserProvider loggedInUserProvider) {
+        this.loggedInUserProvider = loggedInUserProvider;
+    }
+
     @Override
     @Nullable
     protected Principal getPrincipal(@Nullable VaadinRequest request) {
-        return LoggedInUserProvider.CURRENT.getCurrentUser();
+        return loggedInUserProvider.getCurrentUser();
     }
 
     @Override
     @NotNull
     protected Function<String, Boolean> getRolesChecker(@Nullable VaadinRequest request) {
-        return role -> LoggedInUserProvider.CURRENT.getCurrentUserRoles().contains(role);
+        return role -> loggedInUserProvider.getCurrentUserRoles().contains(role);
     }
 }
