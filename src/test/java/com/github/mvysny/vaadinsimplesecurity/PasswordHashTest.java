@@ -8,33 +8,31 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PasswordHashTest {
     @Test
-    public void testMatchingPassword() throws Exception {
+    public void testMatchingPassword() {
         assertTrue(validatePassword("foo", createHash("foo")));
     }
 
     @Test
-    public void testNonMatchingPassword() throws Exception {
-        assertFalse(
-                validatePassword("bar", createHash("foo"))
-        );
+    public void testNonMatchingPassword() {
+        assertFalse(validatePassword("bar", createHash("foo")));
     }
 
     @Test
-    public void testDifferentSalt() throws Exception {
+    public void testDifferentSalt() {
         final String hash1 = createHash("foo".toCharArray(), "salt1".getBytes());
         String hash2 = createHash("foo".toCharArray(), "salt2".getBytes());
         assertNotEquals(hash1, hash2);
     }
 
     @Test
-    public void testDifferentPassword() throws Exception {
+    public void testDifferentPassword() {
         String hash1 = createHash("foo".toCharArray(), "salt1".getBytes());
         String hash2 = createHash("bar".toCharArray(), "salt1".getBytes());
         assertNotEquals(hash1, hash2);
     }
 
     @Test
-    public void originalPasswordHashTest() throws Exception {
+    public void originalPasswordHashTest() {
         // Print out 10 hashes
         for (int i = 0; i < 10; i++)
             System.out.println(createHash("p\r\nassw0Rd!"));
