@@ -1,6 +1,7 @@
 plugins {
     `maven-publish`
     java
+    `java-library`
     signing
 }
 
@@ -14,6 +15,9 @@ repositories {
 }
 
 dependencies {
+    // Java has no nullable types
+    api("org.jetbrains:annotations:22.0.0")
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
