@@ -7,7 +7,7 @@ import java.security.Principal;
 import java.util.Objects;
 
 /**
- * A very simple [Principal] implementation.
+ * A very simple {@link Principal} implementation.
  */
 public final class BasicUserPrincipal implements Principal, Serializable {
     @NotNull

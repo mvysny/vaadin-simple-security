@@ -20,11 +20,13 @@ dependencies {
 
     // vaadin
     compileOnly("com.vaadin:vaadin-core:${properties["vaadin_version"]}")
+    compileOnly("javax.servlet:javax.servlet-api:4.0.1")
 
     // tests
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
     testImplementation("com.vaadin:vaadin-core:${properties["vaadin_version"]}")
+    testImplementation("javax.servlet:javax.servlet-api:4.0.1")
     testImplementation("com.github.mvysny.kaributesting:karibu-testing-v23:${properties["karibu_testing_version"]}")
 }
 
