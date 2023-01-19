@@ -1,4 +1,4 @@
-package com.github.mvysny.vaadinsimplesecurity;
+package com.github.mvysny.vaadinsimplesecurity.util;
 
 /*
  * Password Hashing With PBKDF2 (http://crackstation.net/hashing-security.htm).

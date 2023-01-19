@@ -1,9 +1,9 @@
-package com.github.mvysny.vaadinsimplesecurity;
+package com.github.mvysny.vaadinsimplesecurity.util;
 
 import org.junit.jupiter.api.Test;
 
-import static com.github.mvysny.vaadinsimplesecurity.PasswordHash.createHash;
-import static com.github.mvysny.vaadinsimplesecurity.PasswordHash.validatePassword;
+import static com.github.mvysny.vaadinsimplesecurity.util.PasswordHash.createHash;
+import static com.github.mvysny.vaadinsimplesecurity.util.PasswordHash.validatePassword;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PasswordHashTest {

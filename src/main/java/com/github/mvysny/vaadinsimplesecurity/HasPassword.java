@@ -1,5 +1,6 @@
 package com.github.mvysny.vaadinsimplesecurity;
 
+import com.github.mvysny.vaadinsimplesecurity.util.PasswordHash;
 import org.jetbrains.annotations.NotNull;
 
 /**
