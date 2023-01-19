@@ -16,10 +16,16 @@ repositories {
 
 dependencies {
     // Java has no nullable types
-    api("org.jetbrains:annotations:22.0.0")
+    api("org.jetbrains:annotations:23.1.0")
 
+    // vaadin
+    compileOnly("com.vaadin:vaadin-core:${properties["vaadin_version"]}")
+
+    // tests
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+    testImplementation("com.vaadin:vaadin-core:${properties["vaadin_version"]}")
+    testImplementation("com.github.mvysny.kaributesting:karibu-testing-v23:${properties["karibu_testing_version"]}")
 }
 
 java {
