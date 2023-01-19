@@ -37,7 +37,7 @@ public abstract class LoggedInUserProvider {
     public abstract Set<String> getCurrentUserRoles();
 
     /**
-     * The user is always logged out.
+     * Provider which always returns null user: the user is always logged out.
      */
     @NotNull
     public static final LoggedInUserProvider LOGGED_OUT = new LoggedInUserProvider() {
@@ -52,6 +52,10 @@ public abstract class LoggedInUserProvider {
         }
     };
 
+    /**
+     * Always throws {@link UnsupportedOperationException}; tells you to change {@link #CURRENT} to
+     * your implementation.
+     */
     @NotNull
     public static final LoggedInUserProvider UNIMPLEMENTED = new LoggedInUserProvider() {
         @Override
