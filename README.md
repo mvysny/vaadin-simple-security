@@ -6,6 +6,8 @@ Implements ideas behind the [Securing Plain Java Applications](https://vaadin.co
 Vaadin documentation, but doesn't depend on the servlet container security configuration -
 instead the users are managed directly by the application.
 
+Requires Vaadin 23+ and Java 11+.
+
 Supports:
 
 * *Authentication* - Only allow known users to access the app.
@@ -46,15 +48,17 @@ by adding a `BeforeEnterListener` to all Vaadin `UI`s:
 import java.util.Set;
 
 public class ApplicationServiceInitListener implements VaadinServiceInitListener {
-    @Override
-    public void serviceInit(ServiceInitEvent event) {
+    // will also handle authorization
+    private final SimpleViewAccessChecker accessChecker = SimpleViewAccessChecker.usingService(InMemoryLoginService::get);
+    
+    public ApplicationServiceInitListener() {
         // let's create the "administrator" user, with "password" as password, having the "admin" role.
         InMemoryUserRegistry.get().registerUser(new InMemoryUser("administrator", "password", Set.of("admin")));
-        event.getSource().addUIInitListener(e -> {
-            SimpleViewAccessChecker accessChecker = SimpleViewAccessChecker.usingService(InMemoryLoginService::get);
-            accessChecker.setLoginView(LoginRoute.class);
-            e.getUI().addBeforeEnterListener(accessChecker);
-        });
+        accessChecker.setLoginView(LoginRoute.class);
+    }
+    @Override
+    public void serviceInit(ServiceInitEvent event) {
+        event.getSource().addUIInitListener(e -> e.getUI().addBeforeEnterListener(accessChecker));
     }
 }
 ```
@@ -147,7 +151,7 @@ public final class MyLoginService extends AbstractLoginService<User> {
 
 We can now instantiate `SimpleViewAccessChecker` simply:
 ```java
-SimpleViewAccessChecker.usingService(MyLoginService::get);
+SimpleViewAccessChecker checker = SimpleViewAccessChecker.usingService(MyLoginService::get);
 ```
 
 The `User` entity represents an user stored in a database table. It implements `HasPassword` which
