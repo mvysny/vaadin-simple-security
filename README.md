@@ -40,7 +40,7 @@ We will observe the Vaadin navigation, and on every navigation attempt we'll che
 whether there is user logged in. If not, we'll redirect to the login page.
 
 In order to hook into Vaadin navigation, we'll need to create a custom `VaadinServiceInitListener`.
-Follow the [Service Init Listener Tutorial](https://vaadin.com/docs/v14/flow/advanced/tutorial-service-init-listener) to create
+Follow the [Service Init Listener Tutorial](https://vaadin.com/docs/latest/advanced/service-init-listener) to create
 the init listener and register it to Vaadin. Then, we'll hook into the Vaadin navigation
 by adding a `BeforeEnterListener` to all Vaadin `UI`s:
 
