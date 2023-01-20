@@ -79,8 +79,6 @@ the init listener and register it to Vaadin. Then, we'll hook into the Vaadin na
 by adding a `BeforeEnterListener` to all Vaadin `UI`s:
 
 ```java
-import java.util.Set;
-
 public class ApplicationServiceInitListener implements VaadinServiceInitListener {
     // will also handle authorization
     private final SimpleViewAccessChecker accessChecker = SimpleViewAccessChecker.usingService(InMemoryLoginService::get);
