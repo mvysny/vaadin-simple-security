@@ -2,6 +2,9 @@
 
 A library providing simple security support for Vaadin. Doesn't use nor depend on Spring. Perfect for
 your [Vaadin Boot](https://github.com/mvysny/vaadin-boot)-based projects.
+Implements ideas behind the [Securing Plain Java Applications](https://vaadin.com/docs/latest/security/advanced-topics/securing-plain-java-app)
+Vaadin documentation, but doesn't depend on the servlet container security configuration -
+instead the users are managed directly by the application.
 
 Supports:
 
@@ -101,7 +104,8 @@ We previously registered `SimpleViewAccessChecker` to observe all routes as they
 `SimpleViewAccessChecker` will read the annotations present on the route and will make a decision
 whether to allow access or not.
 
-TODO describe all security annotations in detail. + maybe a link to Vaadin documentation
+Please see the [Access Annotations](https://vaadin.com/docs/latest/security/advanced-topics/securing-plain-java-app/#access-annotations)
+Vaadin documentation on what kind of authorization annotations are available.
 
 ## Users stored in SQL
 
