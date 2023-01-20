@@ -38,6 +38,8 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
     private final String mainRoutePath;
     @Nullable
     private U currentUser = null;
+    @Nullable
+    private SimpleUserWithRoles currentUserWithRoles = null;
 
     protected AbstractLoginService() {
         this("");
@@ -61,6 +63,11 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
         return currentUser;
     }
 
+    @Nullable
+    public SimpleUserWithRoles getCurrentPrincipal() {
+        return currentUserWithRoles;
+    }
+
     /**
      * Returns true if the user is logged in (the {@link #getCurrentUser()} is not null), false if not.
      */
@@ -74,8 +81,11 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
      */
     protected void login(@NotNull U user) {
         this.currentUser = user;
+        this.currentUserWithRoles = toUserWithRoles(user);
 
-        // creates a new session after login, to prevent session fixation attack
+        // creates a new session after login, to prevent session fixation attack.
+        // All session attributes (including the instance of this service) are carried
+        // over to the new session.
         VaadinService.reinitializeSession(VaadinRequest.getCurrent());
 
         // navigate the user away from the LoginView and to the landing page.
@@ -98,19 +108,19 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
 
     @NotNull
     public Set<String> getCurrentUserRoles() {
-        if (getCurrentUser() == null) {
+        if (currentUserWithRoles == null) {
             return Collections.emptySet();
         }
-        return getRoles(getCurrentUser());
+        return currentUserWithRoles.getRoles();
     }
 
     /**
-     * Returns all roles which given user possesses.
+     * Converts given user to the {@link SimpleUserWithRoles} representation.
      * @param user the user, not null.
      * @return roles of given user. May be empty if the user has no roles.
      */
     @NotNull
-    protected abstract Set<String> getRoles(@NotNull U user);
+    protected abstract SimpleUserWithRoles toUserWithRoles(@NotNull U user);
 
     public boolean isUserInRole(@NotNull String role) {
         return getCurrentUserRoles().contains(role);

@@ -8,7 +8,6 @@ import com.github.mvysny.kaributesting.v10._expectInternalServerError
 import com.github.mvysny.kaributesting.v10.expectView
 import com.github.mvysny.kaributesting.v10.mock.MockedUI
 import com.github.mvysny.kaributools.navigateTo
-import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryLoggedInUserProvider
 import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryLoginService
 import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryUser
 import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryUserRegistry
@@ -181,7 +180,7 @@ class VokViewAccessCheckerTest : DynaTest({
 class MockedUIWithViewAccessChecker : MockedUI() {
     override fun init(request: VaadinRequest) {
         super.init(request)
-        val checker = SimpleViewAccessChecker(InMemoryLoggedInUserProvider())
+        val checker = SimpleViewAccessChecker.usingService { InMemoryLoginService.get() }
         checker.setLoginView(LoginView::class.java)
         addBeforeEnterListener(checker)
     }

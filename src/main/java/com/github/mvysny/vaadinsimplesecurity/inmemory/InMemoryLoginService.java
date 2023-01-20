@@ -1,27 +1,27 @@
 package com.github.mvysny.vaadinsimplesecurity.inmemory;
 
 import com.github.mvysny.vaadinsimplesecurity.AbstractLoginService;
+import com.github.mvysny.vaadinsimplesecurity.SimpleUserWithRoles;
 import com.github.mvysny.vaadinsimplesecurity.SimpleViewAccessChecker;
 import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
-import java.util.Set;
 
 /**
  * Session-scoped service which holds currently logged-in user. Call {@link #login(String, String)}
  * to try to log in the user; call {@link #logout()} to logout user and redirect to the login page.
  * <p></p>
- * Don't forget to register {@link InMemoryLoggedInUserProvider};
- * also register {@link SimpleViewAccessChecker} as the before-navigation listener.
+ * Pass this service to the {@link SimpleViewAccessChecker} when registering it as the before-navigation listener:
+ * <pre>
+ * val checker = SimpleViewAccessChecker.usingService(InMemoryLoginService::get);
+ * checker.setLoginView(LoginView.class);
+ * ui.addBeforeEnterListener(checker);
+ * </pre>
  */
 public final class InMemoryLoginService extends AbstractLoginService<InMemoryUser> {
     private InMemoryLoginService() {
-    }
-
-    @Override
-    protected @NotNull Set<String> getRoles(@NotNull InMemoryUser user) {
-        return user.getRoles();
+        // private, to prevent accidental instantiation by hand
     }
 
     /**
@@ -39,12 +39,18 @@ public final class InMemoryLoginService extends AbstractLoginService<InMemoryUse
         login(user);
     }
 
+    @Override
+    protected @NotNull SimpleUserWithRoles toUserWithRoles(@NotNull InMemoryUser user) {
+        return new SimpleUserWithRoles(user.getUsername(), user.getRoles());
+    }
+
     /**
      * Returns the service instance from Vaadin Session, creating it if it doesn't exist yet.
      * @return the service.
      */
     @NotNull
     public static InMemoryLoginService get() {
+        SimpleViewAccessChecker.usingService(InMemoryLoginService::get);
         return get(InMemoryLoginService.class, InMemoryLoginService::new);
     }
 }

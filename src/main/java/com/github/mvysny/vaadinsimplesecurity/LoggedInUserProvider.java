@@ -22,7 +22,7 @@ public interface LoggedInUserProvider extends Serializable {
     /**
      * Returns the currently logged-in user.
      * @return logged-in user if any, null if no user is currently logged in.
-     * You can use {@link BasicUserPrincipal} for convenience.
+     * You can use {@link SimpleUserWithRoles} for convenience.
      */
     @Nullable
     Principal getCurrentUser();
