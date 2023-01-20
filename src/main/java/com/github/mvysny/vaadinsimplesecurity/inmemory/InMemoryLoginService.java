@@ -50,7 +50,6 @@ public final class InMemoryLoginService extends AbstractLoginService<InMemoryUse
      */
     @NotNull
     public static InMemoryLoginService get() {
-        SimpleViewAccessChecker.usingService(InMemoryLoginService::get);
         return get(InMemoryLoginService.class, InMemoryLoginService::new);
     }
 }
