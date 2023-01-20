@@ -23,7 +23,7 @@ dependencies {
 }
 ```
 
-TODO example project.
+Please see the [Vaadin Simple Security Example Project](https://github.com/mvysny/vaadin-simple-security-example).
 
 ## Let's Start
 
@@ -33,7 +33,43 @@ First, you'll need a login page. We'll implement the login page as a Vaadin Rout
 the Vaadin LoginForm component. Vaadin's LoginForm enables proper browser username/password autocompletion;
 `PasswordField` and `TextField` do not since the input element is hidden in ShadowDOM.
 
-TODO LoginRoute example.
+```java
+@Route("login")
+@PageTitle("Login")
+@AnonymousAllowed
+public class LoginRoute extends VerticalLayout implements ComponentEventListener<AbstractLogin.LoginEvent> {
+    @NotNull
+    private static final Logger log = LoggerFactory.getLogger(LoginRoute.class);
+
+    @NotNull
+    private final LoginForm login = new LoginForm();
+
+    public LoginRoute() {
+        setSizeFull();
+
+        setJustifyContentMode(JustifyContentMode.CENTER);
+        setAlignItems(Alignment.CENTER);
+
+        login.addLoginListener(this);
+        final LoginI18n loginI18n = new LoginI18n();
+        loginI18n.setHeader(new LoginI18n.Header());
+        loginI18n.getHeader().setTitle("Vaadin Simple Security Demo");
+        loginI18n.setAdditionalInformation("Log in as user/user or admin/admin");
+        login.setI18n(loginI18n);
+        add(login);
+    }
+
+    @Override
+    public void onComponentEvent(@NotNull AbstractLogin.LoginEvent loginEvent) {
+        try {
+            InMemoryLoginService.get().login(loginEvent.getUsername(), loginEvent.getPassword());
+        } catch (LoginException ex) {
+            log.warn("Login failed", ex);
+            login.setError(true);
+        }
+    }
+}
+```
 
 We need to redirect the browser to that login page if there's no user logged in.
 We will observe the Vaadin navigation, and on every navigation attempt we'll check
@@ -52,8 +88,9 @@ public class ApplicationServiceInitListener implements VaadinServiceInitListener
     private final SimpleViewAccessChecker accessChecker = SimpleViewAccessChecker.usingService(InMemoryLoginService::get);
     
     public ApplicationServiceInitListener() {
-        // let's create the "administrator" user, with "password" as password, having the "admin" role.
-        InMemoryUserRegistry.get().registerUser(new InMemoryUser("administrator", "password", Set.of("admin")));
+        // let's create the users
+        InMemoryUserRegistry.get().registerUser(new InMemoryUser("user", "user", Set.of("ROLE_USER")));
+        InMemoryUserRegistry.get().registerUser(new InMemoryUser("admin", "admin", Set.of("ROLE_USER", "ROLE_ADMIN")));
         accessChecker.setLoginView(LoginRoute.class);
     }
     @Override
