@@ -15,8 +15,7 @@ import org.jetbrains.annotations.NotNull;
  * After the registration, when the user tries to log in, simply call {@link #passwordMatches(String)} with the user-provided password, to check whether
  * the user provided a correct password or not.
  * <p></p>
- * You can see the example of this mixin interface in the [vok-security-demo User.kt](https://github.com/mvysny/vok-security-demo/blob/master/web/src/main/kotlin/com/example/vok/User.kt)
- * class.
+ * You can see the example of this mixin interface in the <code>InMemoryUser</code> example user class.
  */
 public interface HasPassword {
     /**

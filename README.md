@@ -14,7 +14,7 @@ this library will assist you with providing best practices for storing passwords
 The library is in Maven Central. To use from your app, add this library as a dependency via Gradle:
 ```kotlin
 dependencies {
-    implementation("com.github.mvysny.vaadin-simple-security:vaadin-simple-security:0.1")
+    implementation("com.github.mvysny.vaadin-simple-security:vaadin-simple-security:0.2")
 }
 ```
 
@@ -24,9 +24,9 @@ TODO example project.
 
 We'll start with a very simple in-memory user management. Afterwards, we'll switch to a SQL-based user table.
 
-First, you'll need a login page. We'll implement a Vaadin Route which will simply contain
-Vaadin's LoginForm. Vaadin's LoginForm enables proper browser username/password autocompletion (`PasswordField` and `TextField` do not since the input element is hidden in ShadowDOM),
-that's why it's important to use LoginForm.
+First, you'll need a login page. We'll implement the login page as a Vaadin Route, which will simply contain
+the Vaadin LoginForm component. Vaadin's LoginForm enables proper browser username/password autocompletion;
+`PasswordField` and `TextField` do not since the input element is hidden in ShadowDOM.
 
 TODO LoginRoute example.
 
@@ -48,19 +48,28 @@ public class ApplicationServiceInitListener implements VaadinServiceInitListener
         // let's create the "administrator" user, with "password" as password, having the "admin" role.
         InMemoryUserRegistry.get().registerUser(new InMemoryUser("administrator", "password", Set.of("admin")));
         event.getSource().addUIInitListener(e -> {
-            SimpleViewAccessChecker accessChecker = new SimpleViewAccessChecker(new InMemoryLoggedInUserProvider());
+            SimpleViewAccessChecker accessChecker = SimpleViewAccessChecker.usingService(InMemoryLoginService::get);
             accessChecker.setLoginView(LoginRoute.class);
             e.getUI().addBeforeEnterListener(accessChecker);
         });
     }
 }
 ```
+`SimpleViewAccessChecker` is the main class which enforces security in an application.
+It is able to redirect to a login page if there's no user logged in; it also checks whether
+the current user has access to the route being navigated to.
 
 How will `SimpleViewAccessChecker` know which user is currently logged in? That's easy -
-we will have to implement the `LoggedInUserProvider` which will return the currently logged-in user.
+it will retrieve it from the `InMemoryLoginService` service.
 
-Most often the logged-in user will be stored in the session. We can store the user
-to the session directly, however where will we put functions dealing with logins and logouts?
+Most often the logged-in user will be stored in the session. We could store the user
+to the session directly, then we could make the checker retrieve the user from the session
+as follows:
+```java
+new SimpleViewAccessChecker(() -> VaadinSession.getCurrent().getAttribute(SimpleUserWithRoles.class));
+```
+However, we are going to need functions that deal with the logins and logouts, and the question would be
+where to place those?
 Therefore, it's better to have a dedicated session-scoped `LoginService`, which will not only store the current user,
 but also provide helpful functions such as `login(username, password)` and `logout()`.
 That's exactly what the `InMemoryLoginService` provides.
@@ -115,6 +124,11 @@ public final class MyLoginService extends AbstractLoginService<User> {
         login(user);
     }
 
+    @Override
+    protected @NotNull SimpleUserWithRoles toUserWithRoles(@NotNull User user) {
+        return new SimpleUserWithRoles(user.getUsername(), user.getRoles());
+    }
+
     @NotNull
     public static MyLoginService get() {
         return get(MyLoginService.class, MyLoginService::new);
@@ -127,21 +141,9 @@ public final class MyLoginService extends AbstractLoginService<User> {
 * `getCurrentUser()` - returns the currently logged-in user.
 * `logout()` - performs logout and redirects to the LoginRoute
 
-We can now implement the `MyLoggedInUserProvider` easily:
+We can now instantiate `SimpleViewAccessChecker` simply:
 ```java
-public class MyLoggedInUserProvider implements LoggedInUserProvider {
-    @Override
-    public @Nullable Principal getCurrentUser() {
-        final User currentUser = MyLoginService.get().getCurrentUser();
-        return currentUser == null ? null : new BasicUserPrincipal(currentUser.getUsername());
-    }
-
-    @Override
-    public @NotNull Set<String> getCurrentUserRoles() {
-        final User currentUser = MyLoginService.get().getCurrentUser();
-        return currentUser == null ? Collections.emptySet() : currentUser.getRoles();
-    }
-}
+SimpleViewAccessChecker.usingService(MyLoginService::get);
 ```
 
 The `User` entity represents an user stored in a database table. It implements `HasPassword` which

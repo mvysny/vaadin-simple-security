@@ -9,9 +9,12 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * A simple demo example implementation of an user object, with username and roles.
+ * A simple demo example implementation of a user object, with username, password and roles.
  * Only used for demo/example purposes - your app will most likely use your own
  * <code>User</code> entity, probably loaded from the database.
+ * <p></p>
+ * Note the {@link HasPassword} interface which greatly helps with password management
+ * and verification.
  */
 public final class InMemoryUser implements Serializable, HasPassword {
 
