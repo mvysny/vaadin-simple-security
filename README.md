@@ -46,7 +46,6 @@ public class LoginRoute extends VerticalLayout implements ComponentEventListener
 
     public LoginRoute() {
         setSizeFull();
-
         setJustifyContentMode(JustifyContentMode.CENTER);
         setAlignItems(Alignment.CENTER);
 
