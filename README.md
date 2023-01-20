@@ -190,4 +190,8 @@ A standalone library will then be created.
 Your best bet is to implement your own `MyLoginService` and offer a `login()` function which
 could for example authenticate the user against an LDAP server.
 
+Alternatively, you can try to configure the servlet container security instead,
+follow the [Securing Plain Java App](https://vaadin.com/docs/latest/security/advanced-topics/securing-plain-java-app) tutorial
+and not use this library.
+
 TODO steal more from vok security.md
