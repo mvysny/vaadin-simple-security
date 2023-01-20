@@ -51,9 +51,7 @@ public class LoginRoute extends VerticalLayout implements ComponentEventListener
         setAlignItems(Alignment.CENTER);
 
         login.addLoginListener(this);
-        final LoginI18n loginI18n = new LoginI18n();
-        loginI18n.setHeader(new LoginI18n.Header());
-        loginI18n.getHeader().setTitle("Vaadin Simple Security Demo");
+        final LoginI18n loginI18n = LoginI18n.createDefault();
         loginI18n.setAdditionalInformation("Log in as user/user or admin/admin");
         login.setI18n(loginI18n);
         add(login);
