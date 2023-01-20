@@ -154,7 +154,7 @@ public final class MyLoginService extends AbstractLoginService<User> {
     private MyLoginService() {}
     
     public void login(@NotNull String username, @NotNull String password) throws LoginException {
-        final User user = User.findByUsername(username); // load the user from the database
+        final User user = User.dao.findByUsername(username); // load the user from the database
         if (user == null) {
             throw new FailedLoginException("Invalid username or password");
         }
@@ -166,7 +166,7 @@ public final class MyLoginService extends AbstractLoginService<User> {
 
     @Override
     protected @NotNull SimpleUserWithRoles toUserWithRoles(@NotNull User user) {
-        return new SimpleUserWithRoles(user.getUsername(), user.getRoles());
+        return new SimpleUserWithRoles(user.getUsername(), user.getRoleSet());
     }
 
     @NotNull
@@ -186,10 +186,71 @@ We can now instantiate `SimpleViewAccessChecker` simply:
 SimpleViewAccessChecker checker = SimpleViewAccessChecker.usingService(MyLoginService::get);
 ```
 
-The `User` entity represents an user stored in a database table. It implements `HasPassword` which
+The `User` entity represents a user stored in a database table. It implements `HasPassword` which
 takes care of password hashing+salting, and of password verification.
 
-TODO User entity example, plus SQL DDL of the Users table.
+```java
+@Table("users")
+public final class User implements Entity<Long>, HasPassword {
+    private Long id;
+    @NotNull
+    private String username;
+    @NotNull
+    private String hashedPassword;
+    @NotNull
+    private String roles;
+    
+    // getters+setters omitted for brevity
+    // equals, hashCode, toString() omitted for brevity
+
+    public Set<String> getRoleSet() {
+        final String r = getRoles();
+        return r == null ? Set.of() : Set.of(r.split(","));
+    }
+
+    public static class UserDao extends Dao<User, Long> {
+        public UserDao() {
+            super(User.class);
+        }
+
+        @Nullable
+        public User findByUsername(String username) {
+            return findSingleBy("username = :username", q -> q.bind("username", username));
+        }
+    }
+
+    public static final UserDao dao = new UserDao();
+}
+```
+
+The SQL DDL for the `users` table is as follows:
+```sql
+create table users (
+  id bigint auto_increment primary key not null,
+  username varchar(100) not null,
+  hashedPassword varchar(200) not null,
+  roles varchar(400) not null
+);
+create unique index on users(username);
+```
+
+To create the users in the database, simply call
+
+```java
+final User admin = new User();
+admin.setUsername("admin");
+admin.setPassword("admin");
+admin.setRoles("ROLE_ADMIN,ROLE_USER");
+admin.save();
+final User user = new User();
+user.setUsername("user");
+user.setPassword("user");
+user.setRoles("ROLE_USER");
+user.save();
+```
+
+Please see the [Vaadin Simple Security Example Application](https://github.com/mvysny/vaadin-simple-security-example)
+for a full example.
 
 ## Other Authentication mechanisms
 
