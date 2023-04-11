@@ -131,7 +131,8 @@ And just like that, we now have the full authentication chain implemented!
 
 To recap:
 
-* `InMemoryUserRegistry` holds a list of users (usernames, passwords and roles) in memory.
+* `InMemoryUserRegistry` holds a list of users (usernames, passwords and roles) in memory. Later on
+  we'll store the users in a SQL database, but in-memory will work for now.
 * `InMemoryLoginService` holds the currently logged-in user in Vaadin session, and provides `login()`/`logout()` functions.
   Uses `InMemoryUserRegistry` when logging in.
 * `SimpleViewAccessChecker` checks access to Vaadin routes (performs authorization). Retrieves the currently-logged-in
