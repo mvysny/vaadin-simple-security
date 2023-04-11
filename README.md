@@ -79,17 +79,24 @@ by adding a `BeforeEnterListener` to all Vaadin `UI`s:
 
 ```java
 public class ApplicationServiceInitListener implements VaadinServiceInitListener {
-    // will also handle authorization
+    // Handles authorization - pulls in the currently-logged-in user from given service and checks
+    // whether the user can access given route.
+    //
+    // InMemoryLoginService remembers the currently logged-in user in the Vaadin Session; it
+    // retrieves the users from the InMemoryUserRegistry.
     private final SimpleViewAccessChecker accessChecker = SimpleViewAccessChecker.usingService(InMemoryLoginService::get);
     
     public ApplicationServiceInitListener() {
-        // let's create the users
+        // Let's create the users. 
         InMemoryUserRegistry.get().registerUser(new InMemoryUser("user", "user", Set.of("ROLE_USER")));
         InMemoryUserRegistry.get().registerUser(new InMemoryUser("admin", "admin", Set.of("ROLE_USER", "ROLE_ADMIN")));
         accessChecker.setLoginView(LoginRoute.class);
     }
     @Override
     public void serviceInit(ServiceInitEvent event) {
+        // accessChecker observes all navigation: if there's no user logged in then we'll redirect to the LoginView;
+        // if the user is not allowed to access given route then we'll throw an exception (in dev mode)
+        // or return 404 not found (in production mode).
         event.getSource().addUIInitListener(e -> e.getUI().addBeforeEnterListener(accessChecker));
     }
 }
@@ -99,7 +106,9 @@ It is able to redirect to a login page if there's no user logged in; it also che
 the current user has access to the route being navigated to.
 
 How will `SimpleViewAccessChecker` know which user is currently logged in? That's easy -
-it will retrieve it from the `InMemoryLoginService` service.
+it will retrieve the user from the `InMemoryLoginService` service. `InMemoryLoginService` remembers
+the currently logged-in user in the Vaadin session; when a user attempts to log in,
+that user is compared against users stored in the `InMemoryUserRegistry`.
 
 Most often the logged-in user will be stored in the session. We could store the user
 to the session directly, then we could make the checker retrieve the user from the session
@@ -107,9 +116,9 @@ as follows:
 ```java
 new SimpleViewAccessChecker(() -> VaadinSession.getCurrent().getAttribute(SimpleUserWithRoles.class));
 ```
-However, we are going to need functions that deal with the logins and logouts, and the question would be
-where to place those?
-Therefore, it's better to have a dedicated session-scoped `LoginService`, which will not only store the current user,
+However, we are going to need functions that deal with the logins and logouts as well, and
+it's good to keep everything neatly in a single class responsible for the current user management.
+Therefore, it's better to have a dedicated session-scoped `LoginService` service class which not only stores the current user,
 but also provide helpful functions such as `login(username, password)` and `logout()`.
 That's exactly what the `InMemoryLoginService` provides.
 
@@ -119,6 +128,14 @@ That's exactly what the `InMemoryLoginService` provides.
 * `logout()` - performs logout and redirects to the LoginRoute
 
 And just like that, we now have the full authentication chain implemented!
+
+To recap:
+
+* `InMemoryUserRegistry` holds a list of users (usernames, passwords and roles) in memory.
+* `InMemoryLoginService` holds the currently logged-in user in Vaadin session, and provides `login()`/`logout()` functions.
+  Uses `InMemoryUserRegistry` when logging in.
+* `SimpleViewAccessChecker` checks access to Vaadin routes (performs authorization). Retrieves the currently-logged-in
+   user from the `InMemoryLoginService`.
 
 ## Authorization
 
