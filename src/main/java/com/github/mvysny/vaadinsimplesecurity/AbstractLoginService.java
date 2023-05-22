@@ -99,7 +99,12 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
      * is logged in, {@link SimpleViewAccessChecker} will redirect Vaadin to the login page.
      */
     public void logout() {
+        // closes the Vaadin session
         VaadinSession.getCurrent().close();
+
+        // however, that doesn't invalidate the HttpSession itself; if there are values stored in
+        // the underlying servlet http session those won't be clared by VaadinSession.close().
+        VaadinSession.getCurrent().getSession().invalidate();
 
         // The UI is recreated by the page reload, and since there is no user in the session (since it has been cleared),
         // the UI will show the LoginView.
