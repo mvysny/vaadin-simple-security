@@ -27,7 +27,7 @@ Compatibility matrix:
 
 | Version         | Supported Vaadin | Required JDK |
 |-----------------|------------------|--------------|
-| 1.x             | 24+              | 17+          |
+| 1.x             | 24.3+            | 17+          |
 | [0.x](tree/0.x) | 23+              | 11+          |
 
 ## Let's Start
