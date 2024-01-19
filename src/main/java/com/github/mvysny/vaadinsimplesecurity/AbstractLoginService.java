@@ -87,7 +87,9 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
         // creates a new session after login, to prevent session fixation attack.
         // All session attributes (including the instance of this service) are carried
         // over to the new session.
-        VaadinServletRequest.getCurrent().getHttpServletRequest().changeSessionId();
+        VaadinService.reinitializeSession(VaadinRequest.getCurrent());
+        //@todo mavi uncomment and remove the line above when Karibu-Testing is fixed
+        //VaadinServletRequest.getCurrent().getHttpServletRequest().changeSessionId();
 
         // navigate the user away from the LoginView and to the landing page.
         // all logged-in users must be able to see the landing page, otherwise they will
@@ -97,7 +99,7 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
 
     /**
      * Logs out the user, clears the session and reloads the page. Since no user
-     * is logged in, {@link SimpleViewAccessChecker} will redirect Vaadin to the login page.
+     * is logged in, {@link SimpleNavigationAccessControl} will redirect Vaadin to the login page.
      */
     public void logout() {
         // closes the Vaadin session

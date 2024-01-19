@@ -1,6 +1,6 @@
 package com.github.mvysny.vaadinsimplesecurity.inmemory;
 
-import com.github.mvysny.vaadinsimplesecurity.SimpleViewAccessChecker;
+import com.github.mvysny.vaadinsimplesecurity.SimpleNavigationAccessControl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,7 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * A simple in-memory singleton registry of known users. Call {@link #registerUser(InMemoryUser)}
  * to add more demo users.
  * <p></p>
- * Don't forget to register {@link SimpleViewAccessChecker} as the before-navigation listener;
+ * Don't forget to register {@link SimpleNavigationAccessControl} as the before-navigation listener;
  * see {@link InMemoryLoginService} for a code example.
  */
 public final class InMemoryUserRegistry {

@@ -2,7 +2,7 @@ package com.github.mvysny.vaadinsimplesecurity.inmemory;
 
 import com.github.mvysny.vaadinsimplesecurity.AbstractLoginService;
 import com.github.mvysny.vaadinsimplesecurity.SimpleUserWithRoles;
-import com.github.mvysny.vaadinsimplesecurity.SimpleViewAccessChecker;
+import com.github.mvysny.vaadinsimplesecurity.SimpleNavigationAccessControl;
 import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.FailedLoginException;
@@ -12,9 +12,9 @@ import javax.security.auth.login.LoginException;
  * Session-scoped service which holds currently logged-in user. Call {@link #login(String, String)}
  * to try to log in the user; call {@link #logout()} to logout user and redirect to the login page.
  * <p></p>
- * Pass this service to the {@link SimpleViewAccessChecker} when registering it as the before-navigation listener:
+ * Pass this service to the {@link SimpleNavigationAccessControl} when registering it as the before-navigation listener:
  * <pre>
- * val checker = SimpleViewAccessChecker.usingService(InMemoryLoginService::get);
+ * val checker = SimpleNavigationAccessControl.usingService(InMemoryLoginService::get);
  * checker.setLoginView(LoginView.class);
  * ui.addBeforeEnterListener(checker);
  * </pre>

@@ -13,10 +13,10 @@ import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryUser
 import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryUserRegistry
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
-import com.vaadin.flow.router.NotFoundException
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.router.RouterLayout
 import com.vaadin.flow.server.VaadinRequest
+import com.vaadin.flow.server.auth.NavigationAccessControl
 import jakarta.annotation.security.PermitAll
 import jakarta.annotation.security.RolesAllowed
 import kotlin.test.expect
@@ -61,7 +61,7 @@ class SalesView : VerticalLayout()
 @Route("rejectall")
 class RejectAllView : VerticalLayout()
 
-class VokViewAccessCheckerTest : DynaTest({
+class SimpleNavigationAccessControlTest : DynaTest({
     lateinit var routes: Routes
     beforeGroup {
         routes = Routes().autoDiscoverViews("com.github.mvysny.vaadinsimplesecurity")
@@ -180,8 +180,8 @@ class VokViewAccessCheckerTest : DynaTest({
 class MockedUIWithViewAccessChecker : MockedUI() {
     override fun init(request: VaadinRequest) {
         super.init(request)
-        val checker = SimpleViewAccessChecker.usingService { InMemoryLoginService.get() }
-        checker.setLoginView(LoginView::class.java)
-        addBeforeEnterListener(checker)
+        val accessControl = SimpleNavigationAccessControl.usingService { InMemoryLoginService.get() }
+        accessControl.setLoginView(LoginView::class.java)
+        addBeforeEnterListener(accessControl)
     }
 }

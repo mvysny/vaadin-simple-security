@@ -7,13 +7,13 @@ import com.vaadin.flow.server.UIInitListener;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
-import com.vaadin.flow.server.auth.ViewAccessChecker;
+import com.vaadin.flow.server.auth.NavigationAccessControl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Checks that the current user has rights to access given route.
@@ -25,7 +25,7 @@ import java.util.function.Function;
  * then install {@link UIInitListener} via {@link VaadinService#addUIInitListener(UIInitListener)},
  * then register this to your UI.
  */
-public class SimpleViewAccessChecker extends ViewAccessChecker {
+public class SimpleNavigationAccessControl extends NavigationAccessControl {
     @NotNull
     private final SerializableSupplier<SimpleUserWithRoles> loggedInUserSupplier;
 
@@ -33,7 +33,7 @@ public class SimpleViewAccessChecker extends ViewAccessChecker {
      * Creates the checker.
      * @param loggedInUserSupplier provides currently logged-in user.
      */
-    public SimpleViewAccessChecker(@NotNull SerializableSupplier<SimpleUserWithRoles> loggedInUserSupplier) {
+    public SimpleNavigationAccessControl(@NotNull SerializableSupplier<SimpleUserWithRoles> loggedInUserSupplier) {
         this.loggedInUserSupplier = loggedInUserSupplier;
     }
 
@@ -45,7 +45,7 @@ public class SimpleViewAccessChecker extends ViewAccessChecker {
 
     @Override
     @NotNull
-    protected Function<String, Boolean> getRolesChecker(@Nullable VaadinRequest request) {
+    protected Predicate<String> getRolesChecker(@Nullable VaadinRequest request) {
         return role -> {
             final SimpleUserWithRoles user = loggedInUserSupplier.get();
             return user != null && user.hasRole(role);
@@ -58,7 +58,7 @@ public class SimpleViewAccessChecker extends ViewAccessChecker {
      * @return the access checker.
      */
     @NotNull
-    public static SimpleViewAccessChecker usingService(@NotNull SerializableSupplier<? extends AbstractLoginService<?>> serviceSupplier) {
-        return new SimpleViewAccessChecker(() -> serviceSupplier.get().getCurrentPrincipal());
+    public static SimpleNavigationAccessControl usingService(@NotNull SerializableSupplier<? extends AbstractLoginService<?>> serviceSupplier) {
+        return new SimpleNavigationAccessControl(() -> serviceSupplier.get().getCurrentPrincipal());
     }
 }

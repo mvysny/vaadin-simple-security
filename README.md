@@ -89,37 +89,37 @@ public class ApplicationServiceInitListener implements VaadinServiceInitListener
     //
     // InMemoryLoginService remembers the currently logged-in user in the Vaadin Session; it
     // retrieves the users from the InMemoryUserRegistry.
-    private final SimpleViewAccessChecker accessChecker = SimpleViewAccessChecker.usingService(InMemoryLoginService::get);
+    private final SimpleNavigationAccessControl accessControl = SimpleNavigationAccessControl.usingService(InMemoryLoginService::get);
     
     public ApplicationServiceInitListener() {
         // Let's create the users. 
         InMemoryUserRegistry.get().registerUser(new InMemoryUser("user", "user", Set.of("ROLE_USER")));
         InMemoryUserRegistry.get().registerUser(new InMemoryUser("admin", "admin", Set.of("ROLE_USER", "ROLE_ADMIN")));
-        accessChecker.setLoginView(LoginRoute.class);
+      accessControl.setLoginView(LoginRoute.class);
     }
     @Override
     public void serviceInit(ServiceInitEvent event) {
-        // accessChecker observes all navigation: if there's no user logged in then we'll redirect to the LoginView;
+        // accessControl observes all navigation: if there's no user logged in then we'll redirect to the LoginView;
         // if the user is not allowed to access given route then we'll throw an exception (in dev mode)
         // or return 404 not found (in production mode).
-        event.getSource().addUIInitListener(e -> e.getUI().addBeforeEnterListener(accessChecker));
+        event.getSource().addUIInitListener(e -> e.getUI().addBeforeEnterListener(accessControl));
     }
 }
 ```
-`SimpleViewAccessChecker` is the main class which enforces security in an application.
+`SimpleNavigationAccessControl` is the main class which enforces security in an application.
 It is able to redirect to a login page if there's no user logged in; it also checks whether
 the current user has access to the route being navigated to.
 
-How will `SimpleViewAccessChecker` know which user is currently logged in? That's easy -
+How will `SimpleNavigationAccessControl` know which user is currently logged in? That's easy -
 it will retrieve the user from the `InMemoryLoginService` service. `InMemoryLoginService` remembers
 the currently logged-in user in the Vaadin session; when a user attempts to log in,
 that user is compared against users stored in the `InMemoryUserRegistry`.
 
 Most often the logged-in user will be stored in the session. We could store the user
-to the session directly, then we could make the checker retrieve the user from the session
+to the session directly, then we could make the access control retrieve the user from the session
 as follows:
 ```java
-new SimpleViewAccessChecker(() -> VaadinSession.getCurrent().getAttribute(SimpleUserWithRoles.class));
+new SimpleNavigationAccessControl(() -> VaadinSession.getCurrent().getAttribute(SimpleUserWithRoles.class));
 ```
 However, we are going to need functions that deal with the logins and logouts as well, and
 it's good to keep everything neatly in a single class responsible for the current user management.
@@ -140,7 +140,7 @@ To recap:
   we'll store the users in a SQL database, but in-memory will work for now.
 * `InMemoryLoginService` holds the currently logged-in user in Vaadin session, and provides `login()`/`logout()` functions.
   Uses `InMemoryUserRegistry` when logging in.
-* `SimpleViewAccessChecker` checks access to Vaadin routes (performs authorization). Retrieves the currently-logged-in
+* `SimpleNavigationAccessControl` checks access to Vaadin routes (performs authorization). Retrieves the currently-logged-in
    user from the `InMemoryLoginService`.
 
 ## Authorization
@@ -159,8 +159,9 @@ For example, the following route may only be accessed by users that contain the 
 public class AdminPage extends VerticalLayout {}
 ```
 
-We previously registered `SimpleViewAccessChecker` to observe all routes as they are navigated to.
-`SimpleViewAccessChecker` will read the annotations present on the route and will make a decision
+We previously registered `SimpleNavigationAccessControl` to observe all routes as they are navigated to.
+`SimpleNavigationAccessControl` will use `AnnotatedViewAccessChecker` to read the annotations present on the route
+and will make a decision
 whether to allow access or not.
 
 Please see the [Access Annotations](https://vaadin.com/docs/latest/security/advanced-topics/securing-plain-java-app/#access-annotations)
@@ -204,9 +205,9 @@ public final class MyLoginService extends AbstractLoginService<User> {
 * `getCurrentUser()` - returns the currently logged-in user.
 * `logout()` - performs logout and redirects to the LoginRoute
 
-We can now instantiate `SimpleViewAccessChecker` simply:
+We can now instantiate `SimpleNavigationAccessControl` simply:
 ```java
-SimpleViewAccessChecker checker = SimpleViewAccessChecker.usingService(MyLoginService::get);
+SimpleNavigationAccessControl accessControl = SimpleNavigationAccessControl.usingService(MyLoginService::get);
 ```
 
 The `User` entity represents a user stored in a database table. It implements `HasPassword` which
