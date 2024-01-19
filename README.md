@@ -25,10 +25,10 @@ Please see the [Vaadin Simple Security Example Project](https://github.com/mvysn
 
 Compatibility matrix:
 
-| Version         | Supported Vaadin | Required JDK |
-|-----------------|------------------|--------------|
-| 1.x             | 24.3+            | 17+          |
-| [0.x](tree/0.x) | 23+              | 11+          |
+| Version               | Supported Vaadin | Required JDK |
+|-----------------------|------------------|--------------|
+| 1.x                   | 24.3+            | 17+          |
+| [0.x](../../tree/0.x) | 23+              | 11+          |
 
 ## Let's Start
 
