@@ -169,7 +169,7 @@ Vaadin documentation on what kind of authorization annotations are available.
 
 ## Users stored in SQL
 
-We recommend to use [jdbi-orm](https://gitlab.com/mvysny/jdbi-orm) to access the database,
+We recommend to use [jdbi-orm](https://gitlab.com/mvysny/jdbi-orm) or [JOOQ](https://www.jooq.org/) to access the database,
 however you can of course use your favourite library.
 
 An example of such a service follows:
