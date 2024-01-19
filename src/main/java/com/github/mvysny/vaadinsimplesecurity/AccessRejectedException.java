@@ -1,8 +1,10 @@
 package com.github.mvysny.vaadinsimplesecurity;
 
+import com.vaadin.flow.router.AccessDeniedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -16,7 +18,9 @@ import java.util.Set;
  * <p></p>
  * You are responsible for catching of this exception in Vaadin's `HasErrorParameter`.
  */
-public class AccessRejectedException extends RuntimeException {
+public class AccessRejectedException extends AccessDeniedException {
+    @NotNull
+    private final String message;
     /**
      * The view which was navigated to. null if the exception was not thrown upon navigation but rather on e.g. button click.
      */
@@ -37,9 +41,10 @@ public class AccessRejectedException extends RuntimeException {
      * is some other reason for which the set of missing roles can not be provided.
      */
     public AccessRejectedException(@NotNull String message, @Nullable Class<?> routeClass, @NotNull Set<String> missingRoles) {
-        super(message);
+        super();
+        this.message = Objects.requireNonNull(message);
         this.routeClass = routeClass;
-        this.missingRoles = missingRoles;
+        this.missingRoles = Objects.requireNonNull(missingRoles);
     }
 
     /**
@@ -59,5 +64,15 @@ public class AccessRejectedException extends RuntimeException {
     @NotNull
     public Set<String> getMissingRoles() {
         return missingRoles;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
+    @Override
+    public String getLocalizedMessage() {
+        return message;
     }
 }
