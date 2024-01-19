@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.0" // for testing only
+    kotlin("jvm") version "1.9.22" // for testing only
     `maven-publish`
     java
     `java-library`
@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
     // Java has no nullable types
-    api("org.jetbrains:annotations:23.1.0")
+    api("org.jetbrains:annotations:24.0.1")
 
     // vaadin
     compileOnly("com.vaadin:vaadin-core:${properties["vaadin_version"]}")
