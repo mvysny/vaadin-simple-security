@@ -11,7 +11,7 @@ import com.vaadin.flow.server.auth.ViewAccessChecker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.function.Function;
 

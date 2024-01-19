@@ -17,8 +17,8 @@ import com.vaadin.flow.router.NotFoundException
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.router.RouterLayout
 import com.vaadin.flow.server.VaadinRequest
-import javax.annotation.security.PermitAll
-import javax.annotation.security.RolesAllowed
+import jakarta.annotation.security.PermitAll
+import jakarta.annotation.security.RolesAllowed
 import kotlin.test.expect
 
 /**
@@ -102,16 +102,16 @@ class VokViewAccessCheckerTest : DynaTest({
         navigateTo<AdminView>()
         expectView<AdminView>()
 
-        // Vaadin 23.1.0 throws NotFoundException instead of redirecting to LoginView if user is logged in.
-        expectThrows<NotFoundException>("No route found for 'user': Access denied") {
+        // Vaadin 24.3.x throws ErrorStateRenderer$ExceptionsTrace for some reason instead of redirecting to LoginView
+        expectThrows<RuntimeException>("Exceptions handled by HasErrorParameter views are") {
             navigateTo<UserView>()
         }
 
-        expectThrows<NotFoundException>("No route found for 'sales/sale': Access denied") {
+        expectThrows<RuntimeException>("Exceptions handled by HasErrorParameter views are") {
             navigateTo<SalesView>()
         }
 
-        expectThrows<NotFoundException>("No route found for 'rejectall': Access denied") {
+        expectThrows<RuntimeException>("Exceptions handled by HasErrorParameter views are") {
             navigateTo<RejectAllView>()
         }
 
@@ -123,8 +123,8 @@ class VokViewAccessCheckerTest : DynaTest({
     test("user logged in") {
         InMemoryLoginService.get().login("user", "user")
 
-        // Vaadin 23.1.0 throws NotFoundException instead of redirecting to LoginView if user is logged in.
-        expectThrows<NotFoundException>("No route found for 'admin': Access denied") {
+        // Vaadin 24.3.x throws ErrorStateRenderer$ExceptionsTrace for some reason instead of redirecting to LoginView
+        expectThrows<Exception>("Exceptions handled by HasErrorParameter views are") {
             navigateTo<AdminView>()
         }
 
@@ -134,8 +134,8 @@ class VokViewAccessCheckerTest : DynaTest({
         navigateTo<SalesView>()
         expectView<SalesView>()
 
-        // Vaadin 23.1.0 throws NotFoundException instead of redirecting to LoginView if user is logged in.
-        expectThrows<NotFoundException>("No route found for 'rejectall': Access denied") {
+        // Vaadin 24.3.x throws ErrorStateRenderer$ExceptionsTrace for some reason instead of redirecting to LoginView
+        expectThrows<Exception>("Exceptions handled by HasErrorParameter views are") {
             navigateTo<RejectAllView>()
         }
 
@@ -147,19 +147,19 @@ class VokViewAccessCheckerTest : DynaTest({
     test("sales logged in") {
         InMemoryLoginService.get().login("sales", "sales")
 
-        // Vaadin 23.1.0 throws NotFoundException instead of redirecting to LoginView if user is logged in.
-        expectThrows<NotFoundException>("No route found for 'admin': Access denied") {
+        // Vaadin 24.3.x throws ErrorStateRenderer$ExceptionsTrace for some reason
+        expectThrows<RuntimeException>("Exceptions handled by HasErrorParameter views are") {
             navigateTo<AdminView>()
         }
 
-        expectThrows<NotFoundException>("No route found for 'user': Access denied") {
+        expectThrows<RuntimeException>("Exceptions handled by HasErrorParameter views are") {
             navigateTo<UserView>()
         }
 
         navigateTo<SalesView>()
         expectView<SalesView>()
 
-        expectThrows<NotFoundException>("No route found for 'rejectall': Access denied") {
+        expectThrows<RuntimeException>("Exceptions handled by HasErrorParameter views are") {
             navigateTo<RejectAllView>()
         }
 

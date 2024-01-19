@@ -21,13 +21,15 @@ dependencies {
 
     // vaadin
     compileOnly("com.vaadin:vaadin-core:${properties["vaadin_version"]}")
-    compileOnly("javax.servlet:javax.servlet-api:4.0.1")
+    compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
+    compileOnly("jakarta.annotation:jakarta.annotation-api:2.1.1")
 
     // tests
     testImplementation("com.github.mvysny.dynatest:dynatest:0.24")
     testImplementation("com.vaadin:vaadin-core:${properties["vaadin_version"]}")
-    testImplementation("javax.servlet:javax.servlet-api:4.0.1")
-    testImplementation("com.github.mvysny.kaributesting:karibu-testing-v23:${properties["karibu_testing_version"]}")
+    testImplementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
+    testImplementation("jakarta.annotation:jakarta.annotation-api:2.1.1")
+    testImplementation("com.github.mvysny.kaributesting:karibu-testing-v24:${properties["karibu_testing_version"]}")
     // remember this is a Java project :) Kotlin only for tests
     testImplementation(kotlin("stdlib-jdk8"))
     testImplementation("org.slf4j:slf4j-simple:${properties["slf4j_version"]}")
