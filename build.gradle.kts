@@ -9,7 +9,7 @@ plugins {
 defaultTasks("clean", "build")
 
 group = "com.github.mvysny.vaadin-simple-security"
-version = "0.3-SNAPSHOT"
+version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()

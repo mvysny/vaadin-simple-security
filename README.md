@@ -6,8 +6,6 @@ Implements ideas behind the [Securing Plain Java Applications](https://vaadin.co
 Vaadin documentation, but doesn't depend on the servlet container security configuration -
 instead the users are managed directly by the application.
 
-Requires Vaadin 23+ and Java 11+. Also compatible with Vaadin 24.
-
 Supports:
 
 * *Authentication* - Only allow known users to access the app.
@@ -24,6 +22,13 @@ dependencies {
 ```
 
 Please see the [Vaadin Simple Security Example Project](https://github.com/mvysny/vaadin-simple-security-example).
+
+Compatibility matrix:
+
+| Version         | Supported Vaadin | Required JDK |
+|-----------------|------------------|--------------|
+| 1.x             | 24+              | 17+          |
+| [0.x](tree/0.x) | 23+              | 11+          |
 
 ## Let's Start
 
