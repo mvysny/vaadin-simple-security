@@ -2,8 +2,6 @@ package com.github.mvysny.vaadinsimplesecurity;
 
 import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryLoginService;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.server.VaadinRequest;
-import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinSession;
 import org.jetbrains.annotations.NotNull;
@@ -87,9 +85,7 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
         // creates a new session after login, to prevent session fixation attack.
         // All session attributes (including the instance of this service) are carried
         // over to the new session.
-        VaadinService.reinitializeSession(VaadinRequest.getCurrent());
-        //@todo mavi uncomment and remove the line above when Karibu-Testing is fixed
-        //VaadinServletRequest.getCurrent().getHttpServletRequest().changeSessionId();
+        VaadinServletRequest.getCurrent().getHttpServletRequest().changeSessionId();
 
         // navigate the user away from the LoginView and to the landing page.
         // all logged-in users must be able to see the landing page, otherwise they will
