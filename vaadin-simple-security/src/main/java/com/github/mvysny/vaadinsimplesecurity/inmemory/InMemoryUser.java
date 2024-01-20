@@ -18,24 +18,47 @@ import java.util.Set;
  */
 public final class InMemoryUser implements Serializable, HasPassword {
 
+    /**
+     * The hashed password, stored via {@link HasPassword#setPassword(String)}.
+     */
     @NotNull
     private String hashedPassword = "";
+
+    /**
+     * The username, not null.
+     */
     @NotNull
     private final String username;
+    /**
+     * Allowed roles for this user, not null, may be empty.
+     */
     @NotNull
     private final Set<String> roles;
 
+    /**
+     * Creates the in-memory demo user.
+     * @param username the username, not null.
+     * @param password the plaintext password, not null. The password is stored
+     *                 in hashed form via {@link HasPassword#setPassword(String)}.
+     * @param roles    allowed roles for this user, not null, may be empty.
+     */
     public InMemoryUser(@NotNull String username, @NotNull String password, @NotNull Set<String> roles) {
         this.username = Objects.requireNonNull(username);
         this.roles = new HashSet<>(roles);
         setPassword(password);
     }
 
+    /**
+     * @return the username, not null.
+     */
     @NotNull
     public String getUsername() {
         return username;
     }
 
+    /**
+     * @return allowed roles for this user, not null, may be empty.
+     */
     @NotNull
     public Set<String> getRoles() {
         return new HashSet<>(roles);
