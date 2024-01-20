@@ -3,6 +3,8 @@ package com.github.mvysny.vaadinsimplesecurity;
 import com.github.mvysny.vaadinsimplesecurity.util.PasswordHash;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 /**
  * This mixin interface makes sure that the database-stored passwords are properly hashed and not stored in plaintext.
  * This makes it impossible to guess the user's password even if the database gets compromised.
@@ -37,7 +39,7 @@ public interface HasPassword {
      * @param password the password provided by the user at login.
      */
     default boolean passwordMatches(@NotNull String password) {
-        return PasswordHash.validatePassword(password, getHashedPassword());
+        return PasswordHash.validatePassword(Objects.requireNonNull(password), getHashedPassword());
     }
 
     /**
@@ -46,6 +48,6 @@ public interface HasPassword {
      * @param password the new password
      */
     default void setPassword(@NotNull String password) {
-        setHashedPassword(PasswordHash.createHash(password));
+        setHashedPassword(PasswordHash.createHash(Objects.requireNonNull(password)));
     }
 }
