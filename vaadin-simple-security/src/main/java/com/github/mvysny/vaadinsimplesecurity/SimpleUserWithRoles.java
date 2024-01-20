@@ -72,7 +72,7 @@ public final class SimpleUserWithRoles implements Principal, Serializable {
 
     @Override
     public String toString() {
-        return "BasicUserPrincipal{" + username + '\'' + '}';
+        return "SimpleUserWithRoles{" + username + '\'' + '}';
     }
 
     @Override
