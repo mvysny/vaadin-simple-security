@@ -13,6 +13,7 @@ dependencies {
 
     // tests
     testImplementation("com.github.mvysny.dynatest:dynatest:0.24")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("com.vaadin:vaadin-core:${properties["vaadin_version"]}")
     testImplementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
     testImplementation("jakarta.annotation:jakarta.annotation-api:2.1.1")

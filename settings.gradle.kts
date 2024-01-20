@@ -6,5 +6,6 @@ pluginManagement {
     }
 }
 include(
-    "vaadin-simple-security"
+    "vaadin-simple-security",
+    "testapp"
 )
