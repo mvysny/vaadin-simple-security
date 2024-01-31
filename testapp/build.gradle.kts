@@ -1,5 +1,5 @@
 plugins {
-    id("com.vaadin")
+    alias(libs.plugins.vaadin)
 }
 
 dependencies {

@@ -3,7 +3,6 @@ plugins {
     `maven-publish`
     java
     signing
-    id("com.vaadin") apply(false) // for the testapp only
 }
 
 defaultTasks("clean", "build")
