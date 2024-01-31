@@ -12,7 +12,7 @@ dependencies {
 
     // tests
     testImplementation(libs.dynatest)
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.vaadin.core)
     testImplementation(libs.bundles.jakarta)
     testImplementation(libs.kaributesting)
