@@ -1,11 +1,11 @@
 [versions]
 # Check the newest Vaadin version at https://github.com/vaadin/platform/tags
 # Latest LTS version
-vaadin = "24.3.3"
+vaadin = "24.3.5"
 # https://repo1.maven.org/maven2/org/slf4j/slf4j-api/
-slf4j = "2.0.11"
+slf4j = "2.0.12"
 # https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-engine/
-junit = "5.9.3"
+junit = "5.10.2"
 
 [libraries]
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
@@ -13,8 +13,8 @@ slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 jetbrains-annotations = "org.jetbrains:annotations:24.0.1"
 vaadin-core = { module = "com.vaadin:vaadin-core", version.ref = "vaadin" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
-junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.9.3"
-kaributesting = "com.github.mvysny.kaributesting:karibu-testing-v24:2.1.2"
+junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.10.2"
+kaributesting = "com.github.mvysny.kaributesting:karibu-testing-v24:2.1.4"
 jakarta-servlet = "jakarta.servlet:jakarta.servlet-api:6.0.0"
 jakarta-annotation = "jakarta.annotation:jakarta.annotation-api:2.1.1"
 dynatest = "com.github.mvysny.dynatest:dynatest:0.24"
