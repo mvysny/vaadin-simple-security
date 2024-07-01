@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "2.0.0" // for testing only
     `maven-publish`
@@ -29,8 +32,8 @@ subprojects {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
+    tasks.withType<KotlinCompile> {
+        compilerOptions.jvmTarget = JvmTarget.JVM_17
     }
 
     // creates a reusable function which configures proper deployment to Maven Central
