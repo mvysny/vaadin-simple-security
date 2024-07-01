@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.22" // for testing only
+    kotlin("jvm") version "2.0.0" // for testing only
     `maven-publish`
     java
     signing
