@@ -2,6 +2,6 @@
 .idea
 build
 
-testapp/frontend/generated
+testapp/src/main/frontend/generated
 
 !**/src/main/dev-bundle/webapp/VAADIN/build
