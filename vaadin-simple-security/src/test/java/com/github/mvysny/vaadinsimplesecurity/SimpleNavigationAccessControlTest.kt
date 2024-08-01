@@ -2,10 +2,7 @@ package com.github.mvysny.vaadinsimplesecurity
 
 import com.github.mvysny.dynatest.DynaTest
 import com.github.mvysny.dynatest.expectThrows
-import com.github.mvysny.kaributesting.v10.MockVaadin
-import com.github.mvysny.kaributesting.v10.Routes
-import com.github.mvysny.kaributesting.v10._expectInternalServerError
-import com.github.mvysny.kaributesting.v10.expectView
+import com.github.mvysny.kaributesting.v10.*
 import com.github.mvysny.kaributesting.v10.mock.MockedUI
 import com.github.mvysny.kaributools.navigateTo
 import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryLoginService
@@ -13,10 +10,10 @@ import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryUser
 import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryUserRegistry
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
+import com.vaadin.flow.router.AccessDeniedException
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.router.RouterLayout
 import com.vaadin.flow.server.VaadinRequest
-import com.vaadin.flow.server.auth.NavigationAccessControl
 import jakarta.annotation.security.PermitAll
 import jakarta.annotation.security.RolesAllowed
 import kotlin.test.expect
@@ -102,16 +99,15 @@ class SimpleNavigationAccessControlTest : DynaTest({
         navigateTo<AdminView>()
         expectView<AdminView>()
 
-        // Vaadin 24.3.x throws ErrorStateRenderer$ExceptionsTrace for some reason instead of redirecting to LoginView
-        expectThrows<RuntimeException>("Exceptions handled by HasErrorParameter views are") {
+        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<UserView>()
         }
 
-        expectThrows<RuntimeException>("Exceptions handled by HasErrorParameter views are") {
+        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<SalesView>()
         }
 
-        expectThrows<RuntimeException>("Exceptions handled by HasErrorParameter views are") {
+        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<RejectAllView>()
         }
 
@@ -123,8 +119,7 @@ class SimpleNavigationAccessControlTest : DynaTest({
     test("user logged in") {
         InMemoryLoginService.get().login("user", "user")
 
-        // Vaadin 24.3.x throws ErrorStateRenderer$ExceptionsTrace for some reason instead of redirecting to LoginView
-        expectThrows<Exception>("Exceptions handled by HasErrorParameter views are") {
+        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<AdminView>()
         }
 
@@ -134,8 +129,7 @@ class SimpleNavigationAccessControlTest : DynaTest({
         navigateTo<SalesView>()
         expectView<SalesView>()
 
-        // Vaadin 24.3.x throws ErrorStateRenderer$ExceptionsTrace for some reason instead of redirecting to LoginView
-        expectThrows<Exception>("Exceptions handled by HasErrorParameter views are") {
+        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<RejectAllView>()
         }
 
@@ -147,19 +141,18 @@ class SimpleNavigationAccessControlTest : DynaTest({
     test("sales logged in") {
         InMemoryLoginService.get().login("sales", "sales")
 
-        // Vaadin 24.3.x throws ErrorStateRenderer$ExceptionsTrace for some reason
-        expectThrows<RuntimeException>("Exceptions handled by HasErrorParameter views are") {
+        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<AdminView>()
         }
 
-        expectThrows<RuntimeException>("Exceptions handled by HasErrorParameter views are") {
+        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<UserView>()
         }
 
         navigateTo<SalesView>()
         expectView<SalesView>()
 
-        expectThrows<RuntimeException>("Exceptions handled by HasErrorParameter views are") {
+        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<RejectAllView>()
         }
 

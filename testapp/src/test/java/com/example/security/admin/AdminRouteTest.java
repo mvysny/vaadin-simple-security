@@ -4,6 +4,7 @@ import com.example.security.AbstractAppTester;
 import com.example.security.security.LoginRoute;
 import com.example.security.user.UserRoute;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.router.AccessDeniedException;
 import com.vaadin.flow.router.NotFoundException;
 import org.junit.jupiter.api.Test;
 
@@ -21,9 +22,7 @@ public class AdminRouteTest extends AbstractAppTester {
     @Test
     public void userShouldNotSeeRoute() {
         login("user");
-        // the following exception is thrown for some reason
-        // com.vaadin.flow.router.internal.ErrorStateRenderer$ExceptionsTrace: Exceptions handled by HasErrorParameter views are :com.vaadin.flow.router.NotFoundException, com.vaadin.flow.router.AccessDeniedException
-        assertThrows(RuntimeException.class, () -> UI.getCurrent().navigate(AdminRoute.class));
+        assertThrows(AccessDeniedException.class, () -> UI.getCurrent().navigate(AdminRoute.class));
         _assertNone(AdminRoute.class);
     }
 
