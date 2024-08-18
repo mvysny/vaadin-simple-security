@@ -1,13 +1,14 @@
 package com.github.mvysny.vaadinsimplesecurity.inmemory
 
-import com.github.mvysny.dynatest.DynaTest
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import kotlin.test.expect
 
-class InMemoryUserRegistryTest : DynaTest({
-    beforeEach { InMemoryUserRegistry.get().clear() }
-    afterEach { InMemoryUserRegistry.get().clear() }
-    test("smoke") {
+class InMemoryUserRegistryTest {
+    @BeforeEach @AfterEach fun clearUserRegistry() { InMemoryUserRegistry.get().clear() }
+    @Test fun smoke() {
         InMemoryUserRegistry.get().registerUser(InMemoryUser("foo", "bar", setOf()))
         expect("foo") { InMemoryUserRegistry.get().findByUsername("foo")?.username }
     }
-})
+}

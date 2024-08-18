@@ -1,13 +1,13 @@
 package com.github.mvysny.vaadinsimplesecurity.inmemory
 
-import com.github.mvysny.dynatest.DynaTest
+import org.junit.jupiter.api.Test
 import kotlin.test.expect
 
-class InMemoryUserTest : DynaTest({
-    test("smoke") {
+class InMemoryUserTest {
+    @Test fun smoke() {
         InMemoryUser("foo", "bar", setOf("admin", "user"))
     }
-    test("equals") {
+    @Test fun testEquals() {
         expect(InMemoryUser("foo", "bar", setOf("admin", "user"))) {
             InMemoryUser("foo", "bar", setOf("admin", "user"))
         }
@@ -15,4 +15,4 @@ class InMemoryUserTest : DynaTest({
             InMemoryUser("foo", "bar", setOf("admin", "user")) == InMemoryUser("foo2", "bar", setOf("admin", "user"))
         }
     }
-})
+}

@@ -12,7 +12,10 @@ dependencies {
 
     // tests
     testImplementation(libs.dynatest)
+    testImplementation(libs.junit.jupiter.engine)
+    testImplementation(kotlin("test"))
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
     testImplementation(libs.vaadin.core)
     testImplementation(libs.bundles.jakarta)
     testImplementation(libs.kaributesting)

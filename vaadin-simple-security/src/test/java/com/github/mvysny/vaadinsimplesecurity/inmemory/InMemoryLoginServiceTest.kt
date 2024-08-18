@@ -1,43 +1,50 @@
 package com.github.mvysny.vaadinsimplesecurity.inmemory
 
-import com.github.mvysny.dynatest.DynaTest
 import com.github.mvysny.dynatest.expectThrows
 import com.github.mvysny.kaributesting.v10.MockVaadin
 import com.github.mvysny.kaributesting.v10.Routes
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import javax.security.auth.login.FailedLoginException
 import kotlin.test.expect
 
-class InMemoryLoginServiceTest : DynaTest({
-    lateinit var routes: Routes
-    beforeGroup {
-        routes = Routes().autoDiscoverViews("com.github.mvysny.vaadinsimplesecurity")
-        InMemoryUserRegistry.get().clear()
-        InMemoryUserRegistry.get().registerUser(InMemoryUser("admin", "admin", setOf("admin")))
-        InMemoryUserRegistry.get().registerUser(InMemoryUser("user", "user", setOf("user")))
-        InMemoryUserRegistry.get().registerUser(InMemoryUser("sales", "sales", setOf("sales")))
+class InMemoryLoginServiceTest {
+    companion object {
+        private lateinit var routes: Routes
+        @BeforeAll @JvmStatic fun setup() {
+            routes = Routes().autoDiscoverViews("com.github.mvysny.vaadinsimplesecurity")
+            InMemoryUserRegistry.get().clear()
+            InMemoryUserRegistry.get().registerUser(InMemoryUser("admin", "admin", setOf("admin")))
+            InMemoryUserRegistry.get().registerUser(InMemoryUser("user", "user", setOf("user")))
+            InMemoryUserRegistry.get().registerUser(InMemoryUser("sales", "sales", setOf("sales")))
+        }
+        @AfterAll @JvmStatic fun teardown() {
+            InMemoryUserRegistry.get().clear()
+        }
     }
-    afterGroup {
-        InMemoryUserRegistry.get().clear()
-    }
-    beforeEach { MockVaadin.setup(routes) }
-    afterEach { MockVaadin.tearDown() }
-    group("isLoggedIn") {
-        test("false by default") {
+    @BeforeEach fun setupVaadin() { MockVaadin.setup(routes) }
+    @AfterEach fun teardownVaadin() { MockVaadin.tearDown() }
+    @Nested inner class isLoggedIn() {
+        @Test fun `false by default`() {
             expect(false) { InMemoryLoginService.get().isLoggedIn }
         }
-        test("sets to true after successful login") {
+        @Test fun `sets to true after successful login`() {
             InMemoryLoginService.get().login("admin", "admin")
             expect(true) { InMemoryLoginService.get().isLoggedIn }
         }
-        test("stays false after unsuccessful login") {
+        @Test fun `stays false after unsuccessful login`() {
             expectThrows<FailedLoginException> {
                 InMemoryLoginService.get().login("non-existing", "admin")
             }
             expect(false) { InMemoryLoginService.get().isLoggedIn }
         }
     }
-    group("login") {
-        test("rejects incorrect username") {
+    @Nested inner class login {
+        @Test fun `rejects incorrect username`() {
             expectThrows<FailedLoginException>("Invalid username or password") {
                 InMemoryLoginService.get().login("non-existing", "admin")
             }
@@ -45,7 +52,7 @@ class InMemoryLoginServiceTest : DynaTest({
             expect(setOf()) { InMemoryLoginService.get().currentUserRoles }
             expect(null) { InMemoryLoginService.get().currentPrincipal }
         }
-        test("rejects incorrect password") {
+        @Test fun `rejects incorrect password`() {
             expectThrows<FailedLoginException>("Invalid username or password") {
                 InMemoryLoginService.get().login("admin", "admin22")
             }
@@ -53,11 +60,11 @@ class InMemoryLoginServiceTest : DynaTest({
             expect(setOf()) { InMemoryLoginService.get().currentUserRoles }
             expect(null) { InMemoryLoginService.get().currentPrincipal }
         }
-        test("succeeds") {
+        @Test fun succeeds() {
             InMemoryLoginService.get().login("admin", "admin")
             expect("admin") { InMemoryLoginService.get().currentUser?.username }
             expect(setOf("admin")) { InMemoryLoginService.get().currentUserRoles }
             expect("admin") { InMemoryLoginService.get().currentPrincipal?.username }
         }
     }
-})
+}
