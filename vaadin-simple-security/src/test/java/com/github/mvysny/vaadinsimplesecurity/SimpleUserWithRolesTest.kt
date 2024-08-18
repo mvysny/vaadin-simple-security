@@ -1,23 +1,23 @@
 package com.github.mvysny.vaadinsimplesecurity
 
-import com.github.mvysny.dynatest.DynaTest
+import org.junit.jupiter.api.Test
 import kotlin.test.expect
 
-class SimpleUserWithRolesTest : DynaTest({
-    test("smoke") {
+class SimpleUserWithRolesTest {
+    @Test fun smoke() {
         SimpleUserWithRoles("foo", setOf())
         SimpleUserWithRoles("foo", setOf("bar"))
         SimpleUserWithRoles("foo", null)
     }
-    test("equals") {
+    @Test fun testEquals() {
         expect(SimpleUserWithRoles("foo", setOf())) { SimpleUserWithRoles("foo", setOf()) }
         expect(false) { SimpleUserWithRoles("foo", setOf()) == SimpleUserWithRoles("bar", setOf()) }
     }
-    test("hasRole") {
+    @Test fun hasRole() {
         expect(false) { SimpleUserWithRoles("foo", setOf()).hasRole("foo") }
         expect(false) { SimpleUserWithRoles("foo", null).hasRole("foo") }
         expect(true) { SimpleUserWithRoles("foo", setOf("foo")).hasRole("foo") }
         expect(true) { SimpleUserWithRoles("foo", setOf("foo", "bar")).hasRole("foo") }
         expect(true) { SimpleUserWithRoles("foo", setOf("foo", "bar")).hasRole("bar") }
     }
-})
+}

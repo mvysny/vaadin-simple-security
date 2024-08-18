@@ -1,6 +1,5 @@
 package com.github.mvysny.vaadinsimplesecurity
 
-import com.github.mvysny.dynatest.DynaTest
 import com.github.mvysny.dynatest.expectThrows
 import com.github.mvysny.kaributesting.v10.*
 import com.github.mvysny.kaributesting.v10.mock.MockedUI
@@ -16,6 +15,11 @@ import com.vaadin.flow.router.RouterLayout
 import com.vaadin.flow.server.VaadinRequest
 import jakarta.annotation.security.PermitAll
 import jakarta.annotation.security.RolesAllowed
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import kotlin.test.expect
 
 /**
@@ -58,26 +62,28 @@ class SalesView : VerticalLayout()
 @Route("rejectall")
 class RejectAllView : VerticalLayout()
 
-class SimpleNavigationAccessControlTest : DynaTest({
-    lateinit var routes: Routes
-    beforeGroup {
-        routes = Routes().autoDiscoverViews("com.github.mvysny.vaadinsimplesecurity")
-        InMemoryUserRegistry.get().clear()
-        InMemoryUserRegistry.get().registerUser(InMemoryUser("admin", "admin", setOf("admin")))
-        InMemoryUserRegistry.get().registerUser(InMemoryUser("user", "user", setOf("user")))
-        InMemoryUserRegistry.get().registerUser(InMemoryUser("sales", "sales", setOf("sales")))
+class SimpleNavigationAccessControlTest {
+    companion object {
+        private lateinit var routes: Routes
+        @BeforeAll @JvmStatic fun setup() {
+            routes = Routes().autoDiscoverViews("com.github.mvysny.vaadinsimplesecurity")
+            InMemoryUserRegistry.get().clear()
+            InMemoryUserRegistry.get().registerUser(InMemoryUser("admin", "admin", setOf("admin")))
+            InMemoryUserRegistry.get().registerUser(InMemoryUser("user", "user", setOf("user")))
+            InMemoryUserRegistry.get().registerUser(InMemoryUser("sales", "sales", setOf("sales")))
+        }
+        @AfterAll @JvmStatic fun teardown() {
+            InMemoryUserRegistry.get().clear()
+        }
     }
-    afterGroup {
-        InMemoryUserRegistry.get().clear()
-    }
-    beforeEach {
+    @BeforeEach fun setupVaadin() {
         MockVaadin.setup(routes, uiFactory = { MockedUIWithViewAccessChecker() })
     }
-    afterEach {
+    @AfterEach fun teardownVaadin() {
         MockVaadin.tearDown()
     }
 
-    test("no user logged in") {
+    @Test fun `no user logged in`() {
         expect(false) { InMemoryLoginService.get().isLoggedIn }
         navigateTo<AdminView>()
         expectView<LoginView>()
@@ -94,7 +100,7 @@ class SimpleNavigationAccessControlTest : DynaTest({
         navigateTo<LoginView>()
         expectView<LoginView>()
     }
-    test("admin logged in") {
+    @Test fun `admin logged in`() {
         InMemoryLoginService.get().login("admin", "admin")
         navigateTo<AdminView>()
         expectView<AdminView>()
@@ -116,7 +122,7 @@ class SimpleNavigationAccessControlTest : DynaTest({
         navigateTo<LoginView>()
         expectView<LoginView>()
     }
-    test("user logged in") {
+    @Test fun `user logged in`() {
         InMemoryLoginService.get().login("user", "user")
 
         expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
@@ -138,7 +144,7 @@ class SimpleNavigationAccessControlTest : DynaTest({
         navigateTo<LoginView>()
         expectView<LoginView>()
     }
-    test("sales logged in") {
+    @Test fun `sales logged in`() {
         InMemoryLoginService.get().login("sales", "sales")
 
         expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
@@ -161,14 +167,14 @@ class SimpleNavigationAccessControlTest : DynaTest({
         navigateTo<LoginView>()
         expectView<LoginView>()
     }
-    test("error route not hijacked by the LoginView") {
+    @Test fun `error route not hijacked by the LoginView`() {
         UI.getCurrent().addBeforeEnterListener { e ->
             e.rerouteToError(RuntimeException("Simulated"), "Simulated")
         }
         navigateTo(WelcomeView::class)
         _expectInternalServerError("Simulated")
     }
-})
+}
 
 class MockedUIWithViewAccessChecker : MockedUI() {
     override fun init(request: VaadinRequest) {
