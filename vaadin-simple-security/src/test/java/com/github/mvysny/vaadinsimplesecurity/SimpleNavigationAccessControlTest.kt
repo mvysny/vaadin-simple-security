@@ -1,6 +1,5 @@
 package com.github.mvysny.vaadinsimplesecurity
 
-import com.github.mvysny.dynatest.expectThrows
 import com.github.mvysny.kaributesting.v10.*
 import com.github.mvysny.kaributesting.v10.mock.MockedUI
 import com.github.mvysny.kaributools.navigateTo

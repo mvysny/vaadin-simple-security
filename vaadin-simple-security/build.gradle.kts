@@ -11,7 +11,6 @@ dependencies {
     compileOnly(libs.bundles.jakarta)
 
     // tests
-    testImplementation(libs.dynatest)
     testImplementation(libs.junit.jupiter.engine)
     testImplementation(kotlin("test"))
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

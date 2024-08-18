@@ -1,14 +1,9 @@
 package com.github.mvysny.vaadinsimplesecurity.inmemory
 
-import com.github.mvysny.dynatest.expectThrows
 import com.github.mvysny.kaributesting.v10.MockVaadin
 import com.github.mvysny.kaributesting.v10.Routes
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import com.github.mvysny.vaadinsimplesecurity.expectThrows
+import org.junit.jupiter.api.*
 import javax.security.auth.login.FailedLoginException
 import kotlin.test.expect
 
@@ -37,7 +32,7 @@ class InMemoryLoginServiceTest {
             expect(true) { InMemoryLoginService.get().isLoggedIn }
         }
         @Test fun `stays false after unsuccessful login`() {
-            expectThrows<FailedLoginException> {
+            assertThrows<FailedLoginException> {
                 InMemoryLoginService.get().login("non-existing", "admin")
             }
             expect(false) { InMemoryLoginService.get().isLoggedIn }
