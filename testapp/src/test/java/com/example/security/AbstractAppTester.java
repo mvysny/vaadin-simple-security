@@ -6,6 +6,7 @@ import com.github.mvysny.kaributesting.v10.MockVaadin;
 import com.github.mvysny.kaributesting.v10.Routes;
 import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryLoginService;
 import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryUserRegistry;
+import com.vaadin.flow.server.VaadinService;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -58,5 +59,9 @@ public abstract class AbstractAppTester {
     @AfterEach
     public void afterEach() {
         MockVaadin.tearDown();
+    }
+
+    protected final boolean isProductionMode() {
+        return VaadinService.getCurrent().getDeploymentConfiguration().isProductionMode();
     }
 }
