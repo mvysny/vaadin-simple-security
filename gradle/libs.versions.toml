@@ -1,7 +1,7 @@
 [versions]
 # Check the newest Vaadin version at https://github.com/vaadin/platform/tags
 # Latest LTS version
-vaadin = "24.4.8"
+vaadin = "24.4.11"
 # https://repo1.maven.org/maven2/org/slf4j/slf4j-api/
 slf4j = "2.0.13"
 # https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-engine/
@@ -16,7 +16,7 @@ junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", vers
 kaributesting = "com.github.mvysny.kaributesting:karibu-testing-v24:2.1.8"
 jakarta-servlet = "jakarta.servlet:jakarta.servlet-api:6.0.0"
 jakarta-annotation = "jakarta.annotation:jakarta.annotation-api:2.1.1"
-vaadinboot = "com.github.mvysny.vaadin-boot:vaadin-boot:12.3"
+vaadinboot = "com.github.mvysny.vaadin-boot:vaadin-boot:13.1"
 
 [plugins]
 vaadin = { id = "com.vaadin", version.ref = "vaadin" }
