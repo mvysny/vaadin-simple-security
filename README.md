@@ -17,7 +17,7 @@ this library will assist you with providing best practices for storing passwords
 The library is in Maven Central. To use from your app, add this library as a dependency via Gradle:
 ```kotlin
 dependencies {
-    implementation("com.github.mvysny.vaadin-simple-security:vaadin-simple-security:0.2")
+    implementation("com.github.mvysny.vaadin-simple-security:vaadin-simple-security:1.0")
 }
 ```
 
