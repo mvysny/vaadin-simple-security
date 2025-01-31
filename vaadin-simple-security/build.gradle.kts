@@ -19,7 +19,7 @@ dependencies {
     testImplementation(libs.bundles.jakarta)
     testImplementation(libs.kaributesting)
     // remember this is a Java project :) Kotlin only for tests
-    testImplementation(kotlin("stdlib-jdk8"))
+    testImplementation(kotlin("stdlib"))
     testImplementation(libs.slf4j.simple)
 }
 
