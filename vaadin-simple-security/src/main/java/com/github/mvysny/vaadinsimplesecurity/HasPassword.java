@@ -44,8 +44,9 @@ public interface HasPassword {
      * @param password the password provided by the user at login.
      */
     default boolean passwordMatches(@NotNull String password) {
+        Objects.requireNonNull(password);
         final String hashedPassword = getHashedPassword();
-        return hashedPassword != null && PasswordHash.validatePassword(Objects.requireNonNull(password), hashedPassword);
+        return hashedPassword != null && PasswordHash.validatePassword(password, hashedPassword);
     }
 
     /**
@@ -57,7 +58,7 @@ public interface HasPassword {
         if (password == null) {
             setHashedPassword(null);
         } else {
-            setHashedPassword(PasswordHash.createHash(Objects.requireNonNull(password)));
+            setHashedPassword(PasswordHash.createHash(password));
         }
     }
 }
