@@ -2,6 +2,7 @@ package com.github.mvysny.vaadinsimplesecurity.inmemory;
 
 import com.github.mvysny.vaadinsimplesecurity.HasPassword;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -21,8 +22,8 @@ public final class InMemoryUser implements Serializable, HasPassword {
     /**
      * The hashed password, stored via {@link HasPassword#setPassword(String)}.
      */
-    @NotNull
-    private String hashedPassword = "";
+    @Nullable
+    private String hashedPassword = null;
 
     /**
      * The username, not null.
@@ -38,11 +39,12 @@ public final class InMemoryUser implements Serializable, HasPassword {
     /**
      * Creates the in-memory demo user.
      * @param username the username, not null.
-     * @param password the plaintext password, not null. The password is stored
+     * @param password the plaintext password. The password is stored
      *                 in hashed form via {@link HasPassword#setPassword(String)}.
+     *                 May be null if this user logged in via SSO.
      * @param roles    allowed roles for this user, not null, may be empty.
      */
-    public InMemoryUser(@NotNull String username, @NotNull String password, @NotNull Set<String> roles) {
+    public InMemoryUser(@NotNull String username, @Nullable String password, @NotNull Set<String> roles) {
         this.username = Objects.requireNonNull(username);
         this.roles = new HashSet<>(roles);
         setPassword(password);
@@ -65,12 +67,12 @@ public final class InMemoryUser implements Serializable, HasPassword {
     }
 
     @Override
-    public @NotNull String getHashedPassword() {
+    public @Nullable String getHashedPassword() {
         return hashedPassword;
     }
 
     @Override
-    public void setHashedPassword(@NotNull String hashedPassword) {
+    public void setHashedPassword(@Nullable String hashedPassword) {
         this.hashedPassword = hashedPassword;
     }
 
