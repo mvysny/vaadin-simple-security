@@ -4,9 +4,11 @@ import com.github.mvysny.vaadinsimplesecurity.AbstractLoginService;
 import com.github.mvysny.vaadinsimplesecurity.SimpleUserWithRoles;
 import com.github.mvysny.vaadinsimplesecurity.SimpleNavigationAccessControl;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
+import java.util.Set;
 
 /**
  * Session-scoped service which holds currently logged-in user. Call {@link #login(String, String)}
@@ -36,6 +38,14 @@ public final class InMemoryLoginService extends AbstractLoginService<InMemoryUse
         if (!user.passwordMatches(password)) {
             throw new FailedLoginException("Invalid username or password");
         }
+        login(user);
+    }
+
+    /**
+     * Logs in given user, no questions asked. Never fails with {@link LoginException}.
+     * Expects that the user has been authenticated by an external authentication system.
+     */
+    public void loginDirectly(@NotNull InMemoryUser user) throws LoginException {
         login(user);
     }
 
