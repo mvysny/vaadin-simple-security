@@ -303,7 +303,7 @@ of such workflows are:
 Vaadin Simple Security offers a direct support for some external identity providers; please see the documentation
 below for concrete authentication procedures:
 
-* [Vaadin Simple Security module for Google Identity](TODO); synonyms: Google SSO, Sign in with Google, One Tap with Google.
+* [Vaadin Simple Security module for Google Identity](externalauth/google/README.md); synonyms: Google SSO, Sign in with Google, One Tap with Google.
 
 Security tips:
 
@@ -326,7 +326,7 @@ public class MyLoginService extends AbstractLoginService<MyUser> {
    * Logs in given user.
    * Expects that the user has been authenticated by an external authentication system, and the security token has been validated.
    */
-  public void login(@NotNull String username) {
+  public void loginDirectly(@NotNull String username) {
     // if you decide to only log in users that already have an account - check that the user exists in your database
     final User user = User.dao.findByUsername(username); // load the user from the database
     if (user == null) {
