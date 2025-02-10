@@ -1,4 +1,5 @@
 include(
     "vaadin-simple-security",
-    "testapp"
+    "testapp",
+    "externalauth:google"
 )
