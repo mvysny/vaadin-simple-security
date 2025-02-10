@@ -136,6 +136,7 @@ public class GoogleSignInButton extends Div {
         setCancelOnTapOutside(true);
         setContext(Context.Signin);
         setItpSupport(false);
+        setButtonType(Type.Standard);
     }
 
     @ClientCallable
@@ -259,5 +260,65 @@ public class GoogleSignInButton extends Div {
      */
     public void setHd(@Nullable String hd) {
         getElement().setProperty("hd", hd);
+    }
+
+    /**
+     * The button type.
+     */
+    public enum Type {
+        /**
+         * Button with text or personalized information.
+         */
+        Standard,
+        /**
+         * An icon button without text.
+         */
+        Icon
+    }
+
+    @NotNull
+    public Type getButtonType() {
+        final String type = getElement().getProperty("button_type", "standard");
+        return Arrays.stream(Type.values()).filter(it -> it.name().equalsIgnoreCase(type)).findAny().orElse(Type.Standard);
+    }
+
+    /**
+     * The button type. The default value is standard.
+     * @param type the button type.
+     */
+    public void setButtonType(@NotNull Type type) {
+        getElement().setProperty("button_type", type.name().toLowerCase());
+    }
+
+    /**
+     * The button theme.
+     */
+    public enum Theme {
+        /**
+         * A standard button theme
+         */
+        Outline,
+        /**
+         * A blue-filled button theme.
+         */
+        Filled_Blue,
+        /**
+         * A black-filled button theme.
+         */
+        Filled_Black;
+    }
+
+    @NotNull
+    public Theme getButtonTheme() {
+        final String theme = getElement().getProperty("button_theme", "outline");
+        return Arrays.stream(Theme.values()).filter(it -> it.name().equalsIgnoreCase(theme)).findAny().orElse(Theme.Outline);
+    }
+
+    /**
+     * The button theme. The default value is outline.
+     * @param theme the button theme.
+     */
+    public void setButtonTheme(@NotNull Theme theme) {
+        getElement().setProperty("button_theme", theme.name().toLowerCase());
     }
 }

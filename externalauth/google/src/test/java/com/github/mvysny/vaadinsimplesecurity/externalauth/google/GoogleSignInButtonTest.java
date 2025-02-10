@@ -29,9 +29,17 @@ class GoogleSignInButtonTest {
     public void smokeAPITest() {
         final GoogleSignInButton button = new GoogleSignInButton(CLIENT_ID);
         button.setItpSupport(false);
+        assertEquals(GoogleSignInButton.Context.Signin, button.getContext());
         button.setContext(GoogleSignInButton.Context.Use);
         button.setCancelOnTapOutside(false);
         button.setLoginHint(null);
         button.setLoginHint("foo@bar.com");
+        button.setHd(null);
+        button.setHd("*");
+        button.setHd("foo@bar.com");
+        assertEquals(GoogleSignInButton.Type.Standard, button.getButtonType());
+        button.setButtonType(GoogleSignInButton.Type.Icon);
+        assertEquals(GoogleSignInButton.Theme.Outline, button.getButtonTheme());
+        button.setButtonTheme(GoogleSignInButton.Theme.Filled_Black);
     }
 }

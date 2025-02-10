@@ -8,7 +8,11 @@ class GoogleSigninButton extends HTMLElement {
             itp_support: this.itp_support,
             login_hint: this.login_hint,
         });
-        google.accounts.id.renderButton(this, {theme:'outline', size:'large'});
+        google.accounts.id.renderButton(this, {
+            type: this.button_type,
+            theme: this.button_theme,
+            size:'large'
+        });
         google.accounts.id.prompt();
     }
     handleCredentialResponse(response) {
