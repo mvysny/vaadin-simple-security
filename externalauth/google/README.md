@@ -67,3 +67,8 @@ Then, add the `GoogleSignInButton` somewhere to your login UI:
 * If using Vaadin `LoginOverlay`, add it to the custom form area: `loginOverlay.getCustomFormArea().add(googleSignInButton)`
 * If using Vaadin `LoginForm`, it unfortunately [doesn't support the custom form area](https://github.com/vaadin/flow-components/issues/5582). Yet, the form is probably nested in a `VerticalLayout`;
   just add the Google Sign In Button to the VerticalLayout, right under the `LoginForm` and you're good.
+
+## Further reading
+
+Please make sure to read the "Using with External Authentication Systems" Vaadin Simple Security
+documentation, to correctly understand how to use this kind of authentication.
