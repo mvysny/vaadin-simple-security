@@ -423,11 +423,25 @@ public class GoogleSignInButton extends Div {
 
     @NotNull
     public LogoAlignment getLogoAlignment() {
-        final String align = getElement().getProperty("logo_alignment", "left");
+        final String align = getElement().getProperty("button_logo_alignment", "left");
         return Arrays.stream(LogoAlignment.values()).filter(it -> it.name().equalsIgnoreCase(align)).findAny().orElse(LogoAlignment.Left);
     }
 
     public void setLogoAlignment(@NotNull LogoAlignment logoAlignment) {
-        getElement().setProperty("logo_alignment", logoAlignment.name().toLowerCase());
+        getElement().setProperty("button_logo_alignment", logoAlignment.name().toLowerCase());
+    }
+
+    @Nullable
+    public Integer getButtonMinWidth() {
+        final String widthString = getElement().getProperty("button_width");
+        return widthString == null ? null : Integer.parseInt(widthString);
+    }
+
+    /**
+     * The minimum button width, in pixels. The maximum width is 400 pixels.
+     * @param width the new minimum width, in pixels.
+     */
+    public void setButtonMinWidth(@Nullable Integer width) {
+        getElement().setProperty("button_width", width == null ? null : width.toString());
     }
 }

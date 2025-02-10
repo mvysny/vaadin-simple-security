@@ -62,5 +62,9 @@ class GoogleSignInButtonTest {
         assertEquals(GoogleSignInButton.LogoAlignment.Left, button.getLogoAlignment());
         button.setLogoAlignment(GoogleSignInButton.LogoAlignment.Center);
         assertEquals(GoogleSignInButton.LogoAlignment.Center, button.getLogoAlignment());
+
+        assertNull(button.getButtonMinWidth());
+        button.setButtonMinWidth(200);
+        assertEquals(200, button.getButtonMinWidth());
     }
 }
