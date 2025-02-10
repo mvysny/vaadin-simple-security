@@ -2,6 +2,7 @@ package com.github.mvysny.vaadinsimplesecurity.externalauth.google;
 
 import com.github.mvysny.kaributesting.v10.MockVaadin;
 import com.vaadin.flow.component.UI;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GoogleSignInButtonTest {
+
+    @NotNull
+    private static final String CLIENT_ID = "2398471023-asoifywerhewjkdlaj023842asdkl.apps.googleusercontent.com";
+
     @BeforeEach public void fakeVaadin() {
         MockVaadin.setup();
     }
@@ -18,6 +23,6 @@ class GoogleSignInButtonTest {
     }
     @Test
     public void smoke() {
-        UI.getCurrent().add(new GoogleSignInButton());
+        UI.getCurrent().add(new GoogleSignInButton(CLIENT_ID));
     }
 }
