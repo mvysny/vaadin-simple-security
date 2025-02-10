@@ -41,14 +41,22 @@ class GoogleSignInButtonTest {
         // button styles
         assertEquals(GoogleSignInButton.Type.Standard, button.getButtonType());
         button.setButtonType(GoogleSignInButton.Type.Icon);
+        assertEquals(GoogleSignInButton.Type.Icon, button.getButtonType());
 
         assertEquals(GoogleSignInButton.Theme.Outline, button.getButtonTheme());
         button.setButtonTheme(GoogleSignInButton.Theme.Filled_Black);
+        assertEquals(GoogleSignInButton.Theme.Filled_Black, button.getButtonTheme());
 
         assertEquals(GoogleSignInButton.Size.Large, button.getButtonSize());
         button.setButtonSize(GoogleSignInButton.Size.Small);
+        assertEquals(GoogleSignInButton.Size.Small, button.getButtonSize());
 
         assertEquals(GoogleSignInButton.Shape.Recangular, button.getButtonShape());
         button.setButtonShape(GoogleSignInButton.Shape.Circle);
+        assertEquals(GoogleSignInButton.Shape.Circle, button.getButtonShape());
+
+        assertEquals(GoogleSignInButton.ButtonText.Signin_With, button.getButtonText());
+        button.setButtonText(GoogleSignInButton.ButtonText.Signup_With);
+        assertEquals(GoogleSignInButton.ButtonText.Signup_With, button.getButtonText());
     }
 }

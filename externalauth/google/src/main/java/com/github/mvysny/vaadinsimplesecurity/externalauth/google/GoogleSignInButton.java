@@ -391,4 +391,25 @@ public class GoogleSignInButton extends Div {
     public void setButtonShape(@NotNull Shape shape) {
         getElement().setProperty("button_shape", shape.name().toLowerCase());
     }
+
+    public enum ButtonText {
+        Signin_With,
+        Signup_With,
+        Continue_With,
+        Signin
+    }
+
+    @NotNull
+    public ButtonText getButtonText() {
+        final String text = getElement().getProperty("button_text", "signin_with");
+        return Arrays.stream(ButtonText.values()).filter(it -> it.name().equalsIgnoreCase(text)).findAny().orElse(ButtonText.Signin_With);
+    }
+
+    /**
+     * The button text. The default value is signin_with. There are no visual differences for the text of icon buttons that have different text attributes. The only exception is when the text is read for screen accessibility.
+     * @param buttonText the button text
+     */
+    public void setButtonText(@NotNull ButtonText buttonText) {
+        getElement().setProperty("button_text", buttonText.name().toLowerCase());
+    }
 }

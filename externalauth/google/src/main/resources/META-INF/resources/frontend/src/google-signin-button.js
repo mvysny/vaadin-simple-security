@@ -13,6 +13,7 @@ class GoogleSigninButton extends HTMLElement {
             theme: this.button_theme,
             size: this.button_size,
             shape: this.button_shape,
+            text: this.button_text,
         });
         google.accounts.id.prompt();
     }
