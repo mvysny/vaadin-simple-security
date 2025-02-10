@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     api(project(":vaadin-simple-security"))
+    implementation(libs.google.api.client)
 
     // vaadin
     compileOnly(libs.vaadin.core)
