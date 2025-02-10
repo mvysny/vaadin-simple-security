@@ -58,5 +58,9 @@ class GoogleSignInButtonTest {
         assertEquals(GoogleSignInButton.ButtonText.Signin_With, button.getButtonText());
         button.setButtonText(GoogleSignInButton.ButtonText.Signup_With);
         assertEquals(GoogleSignInButton.ButtonText.Signup_With, button.getButtonText());
+
+        assertEquals(GoogleSignInButton.LogoAlignment.Left, button.getLogoAlignment());
+        button.setLogoAlignment(GoogleSignInButton.LogoAlignment.Center);
+        assertEquals(GoogleSignInButton.LogoAlignment.Center, button.getLogoAlignment());
     }
 }

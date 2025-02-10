@@ -412,4 +412,22 @@ public class GoogleSignInButton extends Div {
     public void setButtonText(@NotNull ButtonText buttonText) {
         getElement().setProperty("button_text", buttonText.name().toLowerCase());
     }
+
+    /**
+     * The alignment of the Google logo. The default value is left. This attribute only applies to the standard button type.
+     */
+    public enum LogoAlignment {
+        Left,
+        Center
+    }
+
+    @NotNull
+    public LogoAlignment getLogoAlignment() {
+        final String align = getElement().getProperty("logo_alignment", "left");
+        return Arrays.stream(LogoAlignment.values()).filter(it -> it.name().equalsIgnoreCase(align)).findAny().orElse(LogoAlignment.Left);
+    }
+
+    public void setLogoAlignment(@NotNull LogoAlignment logoAlignment) {
+        getElement().setProperty("logo_alignment", logoAlignment.name().toLowerCase());
+    }
 }
