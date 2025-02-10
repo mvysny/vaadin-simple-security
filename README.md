@@ -276,7 +276,81 @@ user.save();
 Please see the [Vaadin Simple Security Example Application](https://github.com/mvysny/vaadin-simple-security-example)
 for a full example.
 
-## Other Authentication mechanisms
+## Using with External Authentication Systems
+
+There are many existing authentication systems which take care of user authentication
+for you. Examples of such systems include OAuth 2.0, OpenId, LDAP or [Google Identity](https://developers.google.com/identity/gsi/web/guides/overview).
+Vaadin Simple Security supports a couple of basic scenarios and provides tips
+for more complex authentication cases.
+
+### DirectLoginService
+
+This case applies when you only use some kind of external authentication system, and
+you do not have the list of users stored locally, for example in a SQL database. Examples
+of such workflows are:
+
+* The external system calls a JavaScript function upon successful authentication, passing in a security token.
+  The security token contains the username and a securely signed proof that the user exists in the external system.
+  * The security token then needs to be passed server-side where it must be validated.
+  * The best way for that is to use the Vaadin RPC mechanism, since it goes through the Vaadin Servlet and obtains the
+    Vaadin session lock, allowing you to use standard Vaadin machinery on successful authentication.
+  * You validate the security token from the safety of server-side, to make sure that the user is not spoofed by a rogue JavaScript script.
+  * If the token is valid, you simply store the user into Vaadin session,
+    concluding the authentication procedure. The user is now logged in, and you navigate to the main view.
+* The external system navigates to an URL, passing in a security token, e.g. as a query parameter. You create a Vaadin Route for this purpose;
+  the route extracts the security token from the query parameter and proceeds with the token validation as described above.
+
+Vaadin Simple Security offers a direct support for some external identity providers; please see the documentation
+below for concrete authentication procedures:
+
+* [Vaadin Simple Security module for Google Identity](TODO); synonyms: Google SSO, Sign in with Google, One Tap with Google.
+
+Security tips:
+
+* It's always good to check that the e-mail belogs to your organization. A simple check that the e-mail address ends with `@yourcompany.com` or such is quite enough.
+  Throw `FailedLoginException` otherwise.
+
+### Using both external authentication system and a locally stored users
+
+This scenario is used when you have the list of users stored locally (e.g. in a SQL database), but you
+also want to support an external authentication system, for example "Sign in with Google".
+Here we expect that you already have a login service implemented. The solution is easy: just add a Java
+function to your existing login service which performs the direct login, similar to `DirectLoginService.login()`;
+you then call the `login()` function after you validate the security token.
+
+An example of such a `login()` function:
+```java
+public class MyLoginService extends AbstractLoginService<MyUser> {
+  //...
+  /**
+   * Logs in given user.
+   * Expects that the user has been authenticated by an external authentication system, and the security token has been validated.
+   */
+  public void login(@NotNull String username) {
+    // if you decide to only log in users that already have an account - check that the user exists in your database
+    final User user = User.dao.findByUsername(username); // load the user from the database
+    if (user == null) {
+      throw new FailedLoginException("Invalid username or password");
+    }
+
+    // alternatively, you can allow any user from your organization to log in, creating the account as necessary
+    final User user = User.dao.findByUsername(username); // load the user from the database
+    if (user == null) {
+      // check that the username is an e-mail from our company
+      if (!username.endsWith("@yourcompany.com")) {
+        throw new FailedLoginException("Invalid user");
+      }
+      user = new User(username, Set.of("user"));
+      user.create();
+    }
+
+    // all looks good. Store the user to Vaadin session, concluding the authentication process, and navigate to the main view.
+    login(new SimpleUserWithRoles(username, roles));
+  }
+}
+```
+
+## Other Authentication Mechanisms
 
 There are many security frameworks already present in Java. However, while attempting
 to support all authentication/authorization schemes those frameworks have became highly
