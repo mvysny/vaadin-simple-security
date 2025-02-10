@@ -16,13 +16,12 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.shared.Registration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.FailedLoginException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,9 +46,6 @@ public class GoogleSignInButton extends Div {
      */
     @NotNull
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-
-    @NotNull
-    private static final Logger log = LoggerFactory.getLogger(GoogleSignInButton.class);
 
     static {
         try {
@@ -136,7 +132,10 @@ public class GoogleSignInButton extends Div {
      */
     public GoogleSignInButton(@NotNull String clientId) {
         this.clientId = Objects.requireNonNull(clientId);
-        getElement().setProperty("clientId", clientId);
+        getElement().setProperty("client_id", clientId);
+        setCancelOnTapOutside(true);
+        setContext(Context.Signin);
+        setItpSupport(false);
     }
 
     @ClientCallable
@@ -166,5 +165,99 @@ public class GoogleSignInButton extends Div {
     @NotNull
     public Registration addSignInListener(@NotNull ComponentEventListener<OnSignInEvent> listener) {
         return addListener(OnSignInEvent.class, listener);
+    }
+
+    public boolean isCancelOnTapOutside() {
+        return getElement().getProperty("cancel_on_tap_outside", true);
+    }
+
+    /**
+     * This field sets whether or not to cancel the One Tap request if a user clicks outside the prompt.
+     * The default value is true. You can disable it if you set the value to false.
+     * @param cancelOnTapOutside
+     */
+    public void setCancelOnTapOutside(boolean cancelOnTapOutside) {
+        getElement().setProperty("cancel_on_tap_outside", cancelOnTapOutside);
+    }
+
+    /**
+     * This field changes the text of the title and messages in the One Tap prompt.
+     */
+    public enum Context {
+        /**
+         * "Sign in with Google"
+         */
+        Signin,
+        /**
+         * "Sign up Google"
+         */
+        Signup,
+        /**
+         * "Use with Google"
+         */
+        Use;
+    }
+
+    @NotNull
+    public Context getContext() {
+        final String context = getElement().getProperty("context", "signin");
+        return Arrays.stream(Context.values()).filter(it -> it.name().equalsIgnoreCase(context)).findAny().orElse(Context.Signin);
+    }
+
+    /**
+     * This field changes the text of the title and messages in the One Tap prompt.
+     * @param context
+     */
+    public void setContext(@NotNull Context context) {
+        getElement().setProperty("context", context.name().toLowerCase());
+    }
+
+    public boolean isItpSupport() {
+        return getElement().getProperty("itp_support", false);
+    }
+
+    /**
+     * This field determines if the <a href="https://developers.google.com/identity/gsi/web/guides/features#upgraded_ux_on_itp_browsers">upgraded One Tap UX</a> should be enabled on browsers that support Intelligent Tracking Prevention (ITP). The default value is false
+     * @param itpSupport
+     */
+    public void setItpSupport(boolean itpSupport) {
+        getElement().setProperty("itp_support", itpSupport);
+    }
+
+    @Nullable
+    public String getLoginHint() {
+        return getElement().getProperty("login_hint");
+    }
+
+    /**
+     * If your application knows in advance which user should be signed-in, it can
+     * provide a login hint to Google. When successful, account selection is skipped.
+     * Accepted values are: an email address or an ID token
+     * <a href="https://developers.google.com/identity/openid-connect/openid-connect#an-id-tokens-payload">sub</a> field value.
+     * <br/>
+     * For more information, see the <a href="https://developers.google.com/identity/protocols/oauth2/openid-connect#authenticationuriparameters">login_hint</a> field in the OpenID Connect documentation.
+     * @param loginHint String, an email address or the value from an ID token sub field. For example 'elisa.beckett@gmail.com'
+     */
+    public void setLoginHint(@Nullable String loginHint) {
+        getElement().setProperty("login_hint", loginHint);
+    }
+
+    @Nullable
+    public String getHd() {
+        return getElement().getProperty("hd");
+    }
+
+    /**
+     * When a user has multiple accounts and should only sign-in with their Workspace
+     * account use this to provide a domain name hint to Google. When successful,
+     * user accounts displayed during account selection are limited to the provided domain.
+     * A wildcard value: <code>*</code> offers only Workspace accounts to the user and
+     * excludes consumer accounts (user@gmail.com) during account selection.
+     * <br/>
+     * For more information, see the <a href="https://developers.google.com/identity/protocols/oauth2/openid-connect#authenticationuriparameters">hd</a> field in the OpenID Connect documentation.
+     * @param hd String. A fully qualified domain name or <code>*</code>
+     */
+    public void setHd(@Nullable String hd) {
+        getElement().setProperty("hd", hd);
     }
 }

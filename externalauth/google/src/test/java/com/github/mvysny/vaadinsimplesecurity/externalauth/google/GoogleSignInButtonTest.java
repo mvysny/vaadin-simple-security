@@ -25,4 +25,13 @@ class GoogleSignInButtonTest {
     public void smoke() {
         UI.getCurrent().add(new GoogleSignInButton(CLIENT_ID));
     }
+    @Test
+    public void smokeAPITest() {
+        final GoogleSignInButton button = new GoogleSignInButton(CLIENT_ID);
+        button.setItpSupport(false);
+        button.setContext(GoogleSignInButton.Context.Use);
+        button.setCancelOnTapOutside(false);
+        button.setLoginHint(null);
+        button.setLoginHint("foo@bar.com");
+    }
 }
