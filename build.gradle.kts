@@ -12,7 +12,7 @@ defaultTasks("clean", "build")
 
 allprojects {
     group = "com.github.mvysny.vaadin-simple-security"
-    version = "1.1-SNAPSHOT"
+    version = "1.1"
 
     repositories {
         mavenCentral()
