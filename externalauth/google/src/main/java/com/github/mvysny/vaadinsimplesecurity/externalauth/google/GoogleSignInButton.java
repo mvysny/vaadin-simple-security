@@ -8,21 +8,31 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.shared.Registration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.login.FailedLoginException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A button which goes through the Google Identity authentication process.
+ * The user clicks this button, goes through the Google login process, and ultimately logs in.
+ * This button then verifies the Google security token and fires the {@link OnSignInEvent}.
+ * <br/>
+ * Register the {@link OnSignInEvent} listeners via {@link #addSignInListener(ComponentEventListener)}.
+ */
 @Tag("google-signin-button")
 @JsModule("./src/google-signin-button.js")
 @JavaScript(value = "https://accounts.google.com/gsi/client")
@@ -59,6 +69,14 @@ public class GoogleSignInButton extends Div {
                            @NotNull String name) implements Serializable {
     }
 
+    /**
+     * Fired when user attempts to sign in via Google Identity services. Either the
+     * authentication went well (then the user is present in {@link #userInfo}),
+     * or the authentication failed - then {@link #failure} is populated.
+     * <br/>
+     * If the authentication went well, that means that the token has been verified server-side
+     * with Google, and therefore the information in {@link #getUserInfo()} can be trusted.
+     */
     public static final class OnSignInEvent extends ComponentEvent<GoogleSignInButton> {
         @Nullable
         private final GoogleSignInButton.UserInfo userInfo;
@@ -128,8 +146,25 @@ public class GoogleSignInButton extends Div {
                 .build();
         try {
             final GoogleIdToken idToken = verifier.verify(idTokenString);
-        } catch (GeneralSecurityException | IOException e) {
-            throw new RuntimeException(e);
+            if (idToken == null) {
+                throw new FailedLoginException("Failed to verify credentials");
+            }
+            final String email = idToken.getPayload().getEmail();
+            final String name = ((String) idToken.getPayload().get("name"));
+            final UserInfo userInfo = new UserInfo(email, name);
+            fireEvent(new OnSignInEvent(this, true, userInfo, null));
+        } catch (Exception e) {
+            fireEvent(new OnSignInEvent(this, true, null, e));
         }
+    }
+
+    /**
+     * Listens for {@link OnSignInEvent}.
+     * @param listener the listener
+     * @return the registration, used to remove the listener.
+     */
+    @NotNull
+    public Registration addSignInListener(@NotNull ComponentEventListener<OnSignInEvent> listener) {
+        return addListener(OnSignInEvent.class, listener);
     }
 }
