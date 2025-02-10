@@ -37,9 +37,18 @@ class GoogleSignInButtonTest {
         button.setHd(null);
         button.setHd("*");
         button.setHd("foo@bar.com");
+
+        // button styles
         assertEquals(GoogleSignInButton.Type.Standard, button.getButtonType());
         button.setButtonType(GoogleSignInButton.Type.Icon);
+
         assertEquals(GoogleSignInButton.Theme.Outline, button.getButtonTheme());
         button.setButtonTheme(GoogleSignInButton.Theme.Filled_Black);
+
+        assertEquals(GoogleSignInButton.Size.Large, button.getButtonSize());
+        button.setButtonSize(GoogleSignInButton.Size.Small);
+
+        assertEquals(GoogleSignInButton.Shape.Recangular, button.getButtonShape());
+        button.setButtonShape(GoogleSignInButton.Shape.Circle);
     }
 }

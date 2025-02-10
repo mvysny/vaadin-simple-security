@@ -137,6 +137,8 @@ public class GoogleSignInButton extends Div {
         setContext(Context.Signin);
         setItpSupport(false);
         setButtonType(Type.Standard);
+        setButtonTheme(Theme.Outline);
+        setButtonSize(Size.Large);
     }
 
     @ClientCallable
@@ -320,5 +322,73 @@ public class GoogleSignInButton extends Div {
      */
     public void setButtonTheme(@NotNull Theme theme) {
         getElement().setProperty("button_theme", theme.name().toLowerCase());
+    }
+
+    /**
+     * The button size
+     */
+    public enum Size {
+        /**
+         * A large button
+         */
+        Large,
+        /**
+         * A medium button
+         */
+        Medium,
+        /**
+         * A small button
+         */
+        Small
+    }
+
+    @NotNull
+    public Size getButtonSize() {
+        final String size = getElement().getProperty("button_size", "large");
+        return Arrays.stream(Size.values()).filter(it -> it.name().equalsIgnoreCase(size)).findAny().orElse(Size.Large);
+    }
+
+    /**
+     * The button size. The default value is large.
+     * @param size the button size.
+     */
+    public void setButtonSize(@NotNull Size size) {
+        getElement().setProperty("button_size", size.name().toLowerCase());
+    }
+
+    /**
+     * The button shape.
+     */
+    public enum Shape {
+        /**
+         * The rectangular-shaped button. If used for the icon button type, then it's the same as square.
+         */
+        Recangular,
+        /**
+         * The pill-shaped button. If used for the icon button type, then it's the same as circle.
+         */
+        Pill,
+        /**
+         * The circle-shaped button. If used for the standard button type, then it's the same as pill.
+         */
+        Circle,
+        /**
+         * The square-shaped button. If used for the standard button type, then it's the same as rectangular.
+         */
+        Square
+    }
+
+    @NotNull
+    public Shape getButtonShape() {
+        var shape = getElement().getProperty("button_shape", "rectangular");
+        return Arrays.stream(Shape.values()).filter(it -> it.name().equalsIgnoreCase(shape)).findAny().orElse(Shape.Recangular);
+    }
+
+    /**
+     * The button shape. The default value is rectangular
+     * @param shape the button shape
+     */
+    public void setButtonShape(@NotNull Shape shape) {
+        getElement().setProperty("button_shape", shape.name().toLowerCase());
     }
 }
