@@ -70,5 +70,6 @@ Then, add the `GoogleSignInButton` somewhere to your login UI:
 
 ## Further reading
 
-Please make sure to read the "Using with External Authentication Systems" Vaadin Simple Security
-documentation, to correctly understand how to use this kind of authentication.
+Please make sure to read the
+[Using with External Authentication Systems" Vaadin Simple Security documentation](https://github.com/mvysny/vaadin-simple-security?tab=readme-ov-file#using-with-external-authentication-systems),
+to correctly understand how to use this kind of authentication.

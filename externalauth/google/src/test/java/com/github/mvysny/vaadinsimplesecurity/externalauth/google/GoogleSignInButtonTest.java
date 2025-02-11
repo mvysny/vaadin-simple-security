@@ -66,5 +66,9 @@ class GoogleSignInButtonTest {
         assertNull(button.getButtonMinWidth());
         button.setButtonMinWidth(200);
         assertEquals(200, button.getButtonMinWidth());
+
+        button.addSignInListener(e -> {
+            System.out.println(e);
+        });
     }
 }

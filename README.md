@@ -283,22 +283,24 @@ for you. Examples of such systems include OAuth 2.0, OpenId, LDAP or [Google Ide
 Vaadin Simple Security supports a couple of basic scenarios and provides tips
 for more complex authentication cases.
 
-### DirectLoginService
+This is for example the workflow of the "Google Sign In Button":
 
-This case applies when you only use some kind of external authentication system, and
-you do not have the list of users stored locally, for example in a SQL database. Examples
-of such workflows are:
-
-* The external system calls a JavaScript function upon successful authentication, passing in a security token.
-  The security token contains the username and a securely signed proof that the user exists in the external system.
+* You place a div on your web page. Upon clicking, the div calls Google Sign In javascript code.
+* The javascript code shows the login window and guides the user to log in with his Google account,
+  possibly handling any 2FA and/or password resets and such.
+* Ultimately, upon successful authentication, the Google JavaScript code calls your JavaScript function,
+  passing in a security token. The security token contains user's e-mail and a
+  digital signature from Google, proving that the user exists in the external system.
   * The security token then needs to be passed server-side where it must be validated.
   * The best way for that is to use the Vaadin RPC mechanism, since it goes through the Vaadin Servlet and obtains the
     Vaadin session lock, allowing you to use standard Vaadin machinery on successful authentication.
   * You validate the security token from the safety of server-side, to make sure that the user is not spoofed by a rogue JavaScript script.
   * If the token is valid, you simply store the user into Vaadin session,
     concluding the authentication procedure. The user is now logged in, and you navigate to the main view.
-* The external system navigates to an URL, passing in a security token, e.g. as a query parameter. You create a Vaadin Route for this purpose;
-  the route extracts the security token from the query parameter and proceeds with the token validation as described above.
+* Alternatively, upon successful authentication, Google JavaScript code navigates to an URL of your choice,
+  passing in a security token, e.g. as a query parameter.
+  * You create a Vaadin Route for this purpose;
+    the route extracts the security token from the query parameter and proceeds with the token validation as described above.
 
 Vaadin Simple Security offers a direct support for some external identity providers; please see the documentation
 below for concrete authentication procedures:
@@ -307,8 +309,33 @@ below for concrete authentication procedures:
 
 Security tips:
 
-* It's always good to check that the e-mail belogs to your organization. A simple check that the e-mail address ends with `@yourcompany.com` or such is quite enough.
+* It's always good to check that the e-mail belongs to your organization. A simple check that the e-mail address ends with `@yourcompany.com` or such is quite enough.
   Throw `FailedLoginException` otherwise.
+
+### DirectLoginService
+
+This case applies when you only use some kind of external authentication system, and
+you do not have the list of users stored locally, for example in a SQL database.
+In such case you don't have to extend `AbstractLoginService` but instead use a pre-provided
+service called `DirectLoginService`, for example:
+
+```java
+googleSSOButton.addSignInListener(e -> {
+    try {
+        if (e.getFailure() != null) {
+            throw e.getFailure();
+        }
+        var userInfo = e.userInfo;
+        if (config.ssoOnlyAllowEmailsEndingWith != null && !userInfo.email.endsWith(config.ssoOnlyAllowEmailsEndingWith)) {
+            throw new FailedLoginException("Only " + config.ssoOnlyAllowEmailsEndingWith + " e-mails accepted");
+        }
+        DirectLoginService.get().login(userInfo.getEmail(), Set.of("user"));
+    } catch (Exception e) {
+        log.warn("Google Login failed", e);
+        showErrorNotification("Google Login failed");
+    }
+});
+```
 
 ### Using both external authentication system and a locally stored users
 
