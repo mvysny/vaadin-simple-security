@@ -343,9 +343,9 @@ This scenario is used when you have the list of users stored locally (e.g. in a 
 also want to support an external authentication system, for example "Sign in with Google".
 Here we expect that you already have a login service implemented. The solution is easy: just add a Java
 function to your existing login service which performs the direct login, similar to `DirectLoginService.login()`;
-you then call the `login()` function after you validate the security token.
+you then call the `loginDirectly()` function after you validate the security token.
 
-An example of such a `login()` function:
+An example of such a `loginDireectly()` function:
 ```java
 public class MyLoginService extends AbstractLoginService<MyUser> {
   //...
