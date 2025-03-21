@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.1.10" // for testing only
+    kotlin("jvm") version "2.1.20" // for testing only
     `maven-publish`
     java
     signing
