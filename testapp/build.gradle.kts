@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.vaadin)
+    application
 }
 
 dependencies {
@@ -22,4 +23,7 @@ dependencies {
     testImplementation(libs.kaributesting)
     testImplementation(libs.junit.jupiter.engine)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+application {
+    mainClass = "com.example.security.Main"
 }
