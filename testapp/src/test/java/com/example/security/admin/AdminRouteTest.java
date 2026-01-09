@@ -2,10 +2,8 @@ package com.example.security.admin;
 
 import com.example.security.AbstractAppTester;
 import com.example.security.security.LoginRoute;
-import com.example.security.user.UserRoute;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.AccessDeniedException;
-import com.vaadin.flow.router.NotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
