@@ -31,6 +31,7 @@ class AdminView : VerticalLayout()
 @Route("login")
 class LoginView : VerticalLayout()
 
+@PermitAll
 class MyLayout : VerticalLayout(), RouterLayout
 
 @Route("", layout = MyLayout::class)
@@ -44,7 +45,7 @@ class WelcomeView : VerticalLayout()
 @RolesAllowed("user")
 class UserView : VerticalLayout()
 
-@RolesAllowed("sales")
+@RolesAllowed("sales", "user")
 class SalesLayout : VerticalLayout(), RouterLayout
 
 /**
@@ -108,7 +109,7 @@ class SimpleNavigationAccessControlTest {
             navigateTo<UserView>()
         }
 
-        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
+        expectThrows<AccessDeniedException>("Denied access to view 'SalesView' due to parent layout 'SalesLayout' access rules. Consider adding one of the following annotations to make the parent layout accessible: @AnonymousAllowed, @PermitAll, or @RolesAllowed.") {
             navigateTo<SalesView>()
         }
 
