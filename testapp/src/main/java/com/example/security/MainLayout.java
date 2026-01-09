@@ -13,13 +13,17 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
-import com.vaadin.flow.router.RouterLayout;
+
+import jakarta.annotation.security.PermitAll;
+
 import org.jetbrains.annotations.NotNull;
 
 /**
- * The main layout. It uses the app-layout component which makes the app look like an Android Material app.
+ * The main layout. It uses the app-layout component which makes the app look
+ * like an Android Material app.
  */
-public class MainLayout extends AppLayout implements RouterLayout {
+@PermitAll
+public class MainLayout extends AppLayout {
     @NotNull
     private final Div contentPane = new Div();
 
