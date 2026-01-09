@@ -1,7 +1,7 @@
 [versions]
 # Check the newest Vaadin version at https://github.com/vaadin/platform/tags
 # Latest LTS version
-vaadin = "24.9.7"
+vaadin = "25.0.2"
 # https://repo1.maven.org/maven2/org/slf4j/slf4j-api/
 slf4j = "2.0.17"
 
@@ -10,12 +10,13 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 jetbrains-annotations = "org.jetbrains:annotations:24.1.0"
 vaadin-core = { module = "com.vaadin:vaadin-core", version.ref = "vaadin" }
+vaadin-dev = { module = "com.vaadin:vaadin-dev", version.ref = "vaadin" }
 # https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-engine/
 junit-jupiter-engine = "org.junit.jupiter:junit-jupiter-engine:6.0.1"
-kaributesting = "com.github.mvysny.kaributesting:karibu-testing-v24:2.4.3"
+kaributesting = "com.github.mvysny.kaributesting:karibu-testing-v24:2.6.1"
 jakarta-servlet = "jakarta.servlet:jakarta.servlet-api:6.0.0"
 jakarta-annotation = "jakarta.annotation:jakarta.annotation-api:2.1.1"
-vaadinboot = "com.github.mvysny.vaadin-boot:vaadin-boot:13.3"
+vaadinboot = "com.github.mvysny.vaadin-boot:vaadin-boot:13.6"
 google-api-client = "com.google.api-client:google-api-client:2.7.2"
 
 [plugins]
