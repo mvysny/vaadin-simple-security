@@ -105,15 +105,15 @@ class SimpleNavigationAccessControlTest {
         navigateTo<AdminView>()
         expectView<AdminView>()
 
-        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
+        expectThrows<MockAccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<UserView>()
         }
 
-        expectThrows<AccessDeniedException>("Denied access to view 'SalesView' due to parent layout 'SalesLayout' access rules. Consider adding one of the following annotations to make the parent layout accessible: @AnonymousAllowed, @PermitAll, or @RolesAllowed.") {
+        expectThrows<MockAccessDeniedException>("Denied access to view 'SalesView' due to parent layout 'SalesLayout' access rules. Consider adding one of the following annotations to make the parent layout accessible: @AnonymousAllowed, @PermitAll, or @RolesAllowed.") {
             navigateTo<SalesView>()
         }
 
-        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
+        expectThrows<MockAccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<RejectAllView>()
         }
 
@@ -125,7 +125,7 @@ class SimpleNavigationAccessControlTest {
     @Test fun `user logged in`() {
         InMemoryLoginService.get().login("user", "user")
 
-        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
+        expectThrows<MockAccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<AdminView>()
         }
 
@@ -135,7 +135,7 @@ class SimpleNavigationAccessControlTest {
         navigateTo<SalesView>()
         expectView<SalesView>()
 
-        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
+        expectThrows<MockAccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<RejectAllView>()
         }
 
@@ -147,18 +147,18 @@ class SimpleNavigationAccessControlTest {
     @Test fun `sales logged in`() {
         InMemoryLoginService.get().login("sales", "sales")
 
-        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
+        expectThrows<MockAccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<AdminView>()
         }
 
-        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
+        expectThrows<MockAccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<UserView>()
         }
 
         navigateTo<SalesView>()
         expectView<SalesView>()
 
-        expectThrows<AccessDeniedException>("Access is denied by annotations on the view.") {
+        expectThrows<MockAccessDeniedException>("Access is denied by annotations on the view.") {
             navigateTo<RejectAllView>()
         }
 

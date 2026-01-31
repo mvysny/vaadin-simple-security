@@ -17,7 +17,7 @@ dependencies {
 
     testImplementation(libs.vaadin.core)
     testImplementation(libs.bundles.jakarta)
-    testImplementation(libs.kaributesting)
+    testImplementation(libs.karibu.testing)
     // remember this is a Java project :) Kotlin only for tests
     testImplementation(kotlin("stdlib"))
     testImplementation(libs.slf4j.simple)
