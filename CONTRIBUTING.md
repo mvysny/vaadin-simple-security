@@ -5,7 +5,7 @@ Please feel free to open bug reports to discuss new features; PRs are welcome as
 
 ## Tests
 
-Uses JUnit 6 Jupiter, with [Karibu-Testing](https://github.com/mvysny/karibu-testing)
+Uses JUnit, with [Karibu-Testing](https://github.com/mvysny/karibu-testing)
 driving Vaadin UI tests in-JVM (no browser needed). Run `./gradlew build` to
 build and test everything, or `./gradlew test` to only run tests.
 
