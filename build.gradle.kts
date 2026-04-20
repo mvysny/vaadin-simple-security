@@ -89,8 +89,9 @@ subprojects {
     tasks.withType<Test> {
         useJUnitPlatform()
         testLogging {
-            // to see the exceptions of failed tests in Travis-CI console.
+            // to see the exceptions of failed tests in CI console.
             exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+            showCauses = true
             showStandardStreams = true
         }
     }
