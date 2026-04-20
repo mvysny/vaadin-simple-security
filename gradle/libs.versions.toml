@@ -16,7 +16,7 @@ junit-jupiter-engine = "org.junit.jupiter:junit-jupiter-engine:6.0.1"
 karibu-testing = "com.github.mvysny.kaributesting:karibu-testing-v24:2.7.0"
 jakarta-servlet = "jakarta.servlet:jakarta.servlet-api:6.0.0"
 jakarta-annotation = "jakarta.annotation:jakarta.annotation-api:2.1.1"
-vaadinboot = "com.github.mvysny.vaadin-boot:vaadin-boot:13.6"
+vaadinboot = "com.github.mvysny.vaadin-boot:vaadin-boot:13.7"
 google-api-client = "com.google.api-client:google-api-client:2.7.2"
 
 [plugins]
