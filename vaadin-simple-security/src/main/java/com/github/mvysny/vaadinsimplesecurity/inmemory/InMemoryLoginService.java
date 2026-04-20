@@ -4,11 +4,9 @@ import com.github.mvysny.vaadinsimplesecurity.AbstractLoginService;
 import com.github.mvysny.vaadinsimplesecurity.SimpleUserWithRoles;
 import com.github.mvysny.vaadinsimplesecurity.SimpleNavigationAccessControl;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
-import java.util.Set;
 
 /**
  * Session-scoped service which holds currently logged-in user. Call {@link #login(String, String)}

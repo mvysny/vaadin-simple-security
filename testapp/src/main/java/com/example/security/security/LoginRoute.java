@@ -2,7 +2,6 @@ package com.example.security.security;
 
 import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryLoginService;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.login.AbstractLogin;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;

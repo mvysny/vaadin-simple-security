@@ -4,7 +4,6 @@ import com.example.security.AbstractAppTester;
 import com.example.security.security.LoginRoute;
 import com.github.mvysny.kaributesting.v10.MockAccessDeniedException;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.router.AccessDeniedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
