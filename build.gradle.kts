@@ -11,6 +11,12 @@ plugins {
 
 defaultTasks("clean", "build")
 
+// checks the doc layer: AGENTS.md and design/
+val verifyDesignTripwires by tasks.registering(Exec::class) {
+    commandLine("design/verify_design_tripwires.sh")
+}
+tasks.check { dependsOn(verifyDesignTripwires) }
+
 allprojects {
     group = "com.github.mvysny.vaadin-simple-security"
     version = "2.0-SNAPSHOT"

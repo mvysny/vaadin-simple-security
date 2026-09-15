@@ -24,3 +24,10 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew --no-daemon --no-watch-fs
 
+  design-tripwires:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - name: Verify design tripwires
+      run: design/verify_design_tripwires.sh
+
