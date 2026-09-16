@@ -1,17 +1,8 @@
-# Ideas
+# Where an access check belongs — and should we still tell users to throw `AccessRejectedException`?
 
-Brainstorm tracker — half-formed thoughts, open questions, things we measured but haven't decided
-on. Not part of the doc layer (`AGENTS.md` + `design/`): nothing here is normative, and nothing
-cites it. An idea that settles moves out — to a `D_` entry, an invariant, a doc comment, code —
-and is deleted here.
+Started from "the class has zero usages"; ended up somewhere more interesting.
 
----
-
-## Should we still tell users to throw `AccessRejectedException` themselves?
-
-Open. Started from "the class has zero usages"; ended up somewhere more interesting.
-
-### What Vaadin actually gives you
+## What Vaadin actually gives you
 
 Verified against flow-server 25.2.7 source, and by probing with Karibu (2026-09-16).
 
@@ -55,10 +46,10 @@ construction at all.
   `AccessDeniedException` supertype) and rewrites it to a plain **404**, deliberately — a denied
   route must look like a missing one (flow#18870).
 
-### The case-by-case tree
+## The case-by-case tree
 
 - **User may not see the route at all** → `@RolesAllowed` on the class. Cheapest and the only
-  option that constructs nothing. No exception involved. Agreed.
+  option that constructs nothing. No exception involved.
 - **Route opens one DB entry the user may not read, id in the URL** → `setParameter`, with
   `event.rerouteToError(..)` / `forwardTo(..)` + `return`. Vaadin-idiomatic. Note this does *not*
   "skip init": the constructor already ran. It only works cleanly if the constructor builds the
@@ -66,7 +57,7 @@ construction at all.
 - **The input isn't in the URL** — a header ComboBox writes a selection into the session, the
   route reads it eagerly. This is the interesting one, and the reason the class exists.
 
-### The trap that decides it (probed, not theory)
+## The trap that decides it (probed, not theory)
 
 Navigating to the same route three times, with a detour in between:
 
@@ -82,7 +73,7 @@ run again (`sendBeforeEnterEventToExistingChain`). So:
 For the ComboBox case that is exactly wrong: change the selection, navigate to the same route
 again, and the constructor check is skipped. `beforeEnter` and `afterNavigation` run every time.
 
-### Where that leaves us
+## Where that leaves us
 
 - The *aesthetic* argument for throwing in the constructor is real — one `throw`, no
   half-initialized route, no "load the data then decide to discard it".
@@ -95,14 +86,17 @@ again, and the constructor check is skipped. `beforeEnter` and `afterNavigation`
 - Half-initialization is then not an argument against the hook but a nudge on how to shape the
   route: the constructor builds the shell, the hook loads and checks. Vaadin's own idiom.
 
-### Open questions
+## Open questions
 
-- Is the wrapped-`IllegalArgumentException` path worth a test, so a future Vaadin that drops
-  `searchByCause` breaks loudly rather than silently 404ing? (The probe is easy to revive.)
-- Should README document the class at all? It currently doesn't mention it, so the extension
-  point is invisible unless you read the source.
-- Worth a one-line helper — `SimpleNavigationAccessControl.checkRole(..)` or similar — so the
-  app doesn't hand-roll `if (!principal.hasRole(..)) throw new AccessRejectedException(..)`?
-  Probably not; it saves one line and adds API.
-- Upstream: nothing in `@AccessDeniedErrorRouter`'s javadoc says the exception class needs a
-  public no-arg constructor (Flow instantiates it reflectively). A doc bug worth reporting.
+- `Q_wrapped_cause_test`: pin the wrapped-`IllegalArgumentException` path with a test, so a future
+  Vaadin that drops `searchByCause` breaks loudly rather than silently 404ing? The probe is easy
+  to revive.
+- `Q_readme_mentions_it`: should README document the class at all? It currently doesn't, so the
+  extension point is invisible unless you read the source.
+- `Q_check_helper`: worth a one-line helper — `SimpleNavigationAccessControl.checkRole(..)` or
+  similar — so the app doesn't hand-roll
+  `if (!principal.hasRole(..)) throw new AccessRejectedException(..)`? Probably not; it saves one
+  line and adds API.
+- `Q_upstream_doc_bug`: nothing in `@AccessDeniedErrorRouter`'s javadoc says the exception class
+  needs a public no-arg constructor (Flow instantiates it reflectively). A doc bug worth
+  reporting upstream.
