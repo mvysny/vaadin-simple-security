@@ -19,7 +19,7 @@ tasks.check { dependsOn(verifyDesignTripwires) }
 
 allprojects {
     group = "com.github.mvysny.vaadin-simple-security"
-    version = "2.0-SNAPSHOT"
+    version = "2.0"
 
     repositories {
         mavenCentral()

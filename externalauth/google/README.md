@@ -27,7 +27,7 @@ In order to see how things work, see the [Google OAuth with Vaadin](https://mvys
 The library is in Maven Central. To use from your app, add this library as a dependency via Gradle:
 ```kotlin
 dependencies {
-    implementation("com.github.mvysny.vaadin-simple-security:externalauth-google:1.1")
+    implementation("com.github.mvysny.vaadin-simple-security:externalauth-google:2.0")
 }
 ```
 

@@ -18,14 +18,14 @@ The library is in Maven Central. Pick the version matching your Vaadin:
 
 | Version               | Supported Vaadin | Required JDK |
 |-----------------------|------------------|--------------|
-| 2.x (this branch, not released yet) | 25+ | 21+          |
+| 2.0                   | 25+              | 21+          |
 | 1.1                   | 24.3+            | 17+          |
 | [0.2](../../tree/0.x) | 23+              | 11+          |
 
 Then add it as a dependency via Gradle:
 ```kotlin
 dependencies {
-    implementation("com.github.mvysny.vaadin-simple-security:vaadin-simple-security:1.1")
+    implementation("com.github.mvysny.vaadin-simple-security:vaadin-simple-security:2.0")
 }
 ```
 
