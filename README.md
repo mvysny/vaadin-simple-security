@@ -14,7 +14,15 @@ Supports:
 Provides a demo in-memory user registry. You should store your users into a database table;
 this library will assist you with providing best practices for storing passwords (hashing+salting).
 
-The library is in Maven Central. To use from your app, add this library as a dependency via Gradle:
+The library is in Maven Central. Pick the version matching your Vaadin:
+
+| Version               | Supported Vaadin | Required JDK |
+|-----------------------|------------------|--------------|
+| 2.x (this branch, not released yet) | 25+ | 21+          |
+| 1.1                   | 24.3+            | 17+          |
+| [0.2](../../tree/0.x) | 23+              | 11+          |
+
+Then add it as a dependency via Gradle:
 ```kotlin
 dependencies {
     implementation("com.github.mvysny.vaadin-simple-security:vaadin-simple-security:1.1")
@@ -22,14 +30,6 @@ dependencies {
 ```
 
 Please see the [Vaadin Simple Security Example Project](https://github.com/mvysny/vaadin-simple-security-example).
-
-Compatibility matrix:
-
-| Version    | Supported Vaadin | Required JDK |
-|------------|------------------|--------------|
-| 2.x        | 25+              | 21+          |
-| 1.x        | 24.3+            | 17+          |
-| [0.x](../../tree/0.x) | 23+              | 11+          |
 
 ## Let's Start
 
@@ -93,16 +93,17 @@ public class ApplicationServiceInitListener implements VaadinServiceInitListener
     private final SimpleNavigationAccessControl accessControl = SimpleNavigationAccessControl.usingService(InMemoryLoginService::get);
     
     public ApplicationServiceInitListener() {
-        // Let's create the users. 
+        // Let's create the users.
         InMemoryUserRegistry.get().registerUser(new InMemoryUser("user", "user", Set.of("ROLE_USER")));
         InMemoryUserRegistry.get().registerUser(new InMemoryUser("admin", "admin", Set.of("ROLE_USER", "ROLE_ADMIN")));
-      accessControl.setLoginView(LoginRoute.class);
+        accessControl.setLoginView(LoginRoute.class);
     }
     @Override
     public void serviceInit(ServiceInitEvent event) {
-        // accessControl observes all navigation: if there's no user logged in then we'll redirect to the LoginView;
-        // if the user is not allowed to access given route then we'll throw an exception (in dev mode)
-        // or return 404 not found (in production mode).
+        // accessControl observes all navigation: if there's no user logged in then we'll redirect to the LoginRoute;
+        // if the user is logged in but lacks the role, Vaadin turns that into a 404 - the reason is
+        // shown in dev mode and suppressed in production, so that a route you may not see looks
+        // exactly like a route that doesn't exist.
         event.getSource().addUIInitListener(e -> e.getUI().addBeforeEnterListener(accessControl));
     }
 }
@@ -128,10 +129,20 @@ Therefore, it's better to have a dedicated session-scoped `LoginService` service
 but also provide helpful functions such as `login(username, password)` and `logout()`.
 That's exactly what the `InMemoryLoginService` provides.
 
-`InMemoryLoginService` inherits lots of useful functions from `AbstractLoginService`, most importantly:
+`InMemoryLoginService` inherits lots of useful functions from `AbstractLoginService`:
 
-* `getCurrentUser()` - returns the currently logged-in user.
-* `logout()` - performs logout and redirects to the LoginRoute
+* `getCurrentUser()` - the logged-in user (your own user object), or null if nobody is logged in.
+* `getCurrentPrincipal()` - the same user reduced to a username + roles; that's all the access control ever sees.
+* `isLoggedIn()`, `isUserInRole(role)`, `getCurrentUserRoles()` - convenience checks.
+* `login(user)` - protected; called by your own `login()` once the user has been authenticated. Stores
+  the user into the session, changes the HTTP session ID (defusing [session fixation](https://owasp.org/www-community/attacks/Session_fixation))
+  and navigates to the app's main route.
+* `logout()` - closes the Vaadin session, invalidates the HTTP session and reloads the page; with no user
+  in the new session, the access control sends the browser to the login route.
+
+The "main route" `login()` navigates to is `""` by default; pass another path to the
+`AbstractLoginService(String)` constructor. Every logged-in user must be allowed to see that route -
+if they aren't, they land back on the login page right after logging in.
 
 And just like that, we now have the full authentication chain implemented!
 
@@ -152,7 +163,9 @@ a set of roles - a set of duties it is expected to perform in the app. Every Vaa
 then declares roles allowed to see that particular view; only users which are assigned at least one
 of the roles declared on the view are then allowed to visit that view.
 
-For example, the following route may only be accessed by users that contain the `admin` role.
+For example, the following route may only be accessed by users having the `ROLE_ADMIN` role.
+The role names are arbitrary strings of your choosing - there is no `ROLE_` prefix convention
+built into the library.
 
 ```java
 @Route("admin")
@@ -255,10 +268,7 @@ public final class MyLoginService extends AbstractLoginService<User> {
 }
 ```
 
-`MyLoginService` inherits lots of useful functions from `AbstractLoginService`, most importantly:
-
-* `getCurrentUser()` - returns the currently logged-in user.
-* `logout()` - performs logout and redirects to the LoginRoute
+`MyLoginService` inherits the same set of functions from `AbstractLoginService` as `InMemoryLoginService` did above.
 
 We can now instantiate `SimpleNavigationAccessControl` simply:
 ```java
@@ -310,7 +320,7 @@ create table users (
   hashedPassword varchar(200) not null,
   roles varchar(400) not null
 );
-create unique index on users(username);
+create unique index idx_users_username on users(username);
 ```
 
 To create the users in the database, simply call
@@ -341,31 +351,31 @@ for more complex authentication cases.
 This is for example the workflow of the "Google Sign In Button":
 
 * You place a div on your web page. Upon clicking, the div calls Google Sign In javascript code.
-* The javascript code shows the login window and guides the user to log in with his Google account,
+* The javascript code shows the login window and guides the user to log in with their Google account,
   possibly handling any 2FA and/or password resets and such.
 * Ultimately, upon successful authentication, the Google JavaScript code calls your JavaScript function,
-  passing in a security token. The security token contains user's e-mail and a
+  passing in a security token. The security token contains the user's e-mail and a
   digital signature from Google, proving that the user exists in the external system.
-  * The security token then needs to be passed server-side where it must be validated.
-  * The best way for that is to use the Vaadin RPC mechanism, since it goes through the Vaadin Servlet and obtains the
-    Vaadin session lock, allowing you to use standard Vaadin machinery on successful authentication.
-  * You validate the security token from the safety of server-side, to make sure that the user is not spoofed by a rogue JavaScript script.
-  * If the token is valid, you simply store the user into Vaadin session,
+  * The token is then passed server-side, where it **must** be validated - a client-side check can be
+    spoofed by any rogue script on the page.
+  * The best way to pass it is the Vaadin RPC mechanism (a `@ClientCallable` method), since it goes through
+    the Vaadin Servlet and obtains the Vaadin session lock, allowing you to use standard Vaadin machinery
+    on successful authentication.
+  * If the token is valid, you store the user into the Vaadin session,
     concluding the authentication procedure. The user is now logged in, and you navigate to the main view.
-* Alternatively, upon successful authentication, Google JavaScript code navigates to an URL of your choice,
-  passing in a security token, e.g. as a query parameter.
-  * You create a Vaadin Route for this purpose;
-    the route extracts the security token from the query parameter and proceeds with the token validation as described above.
+* Alternatively, upon successful authentication, Google JavaScript code navigates to a URL of your choice,
+  passing in a security token, e.g. as a query parameter. You create a Vaadin Route for this purpose;
+  the route extracts the security token from the query parameter and proceeds with the token validation
+  as described above.
 
 Vaadin Simple Security offers a direct support for some external identity providers; please see the documentation
 below for concrete authentication procedures:
 
 * [Vaadin Simple Security module for Google Identity](externalauth/google/README.md); synonyms: Google SSO, Sign in with Google, One Tap with Google.
 
-Security tips:
-
-* It's always good to check that the e-mail belongs to your organization. A simple check that the e-mail address ends with `@yourcompany.com` or such is quite enough.
-  Throw `FailedLoginException` otherwise.
+Security tip: a valid Google token only proves that some Google account exists - not that it's *your*
+user. Always check that the e-mail belongs to your organization; a check that the address ends with
+`@yourcompany.com` or such is quite enough. Throw `FailedLoginException` otherwise.
 
 ### DirectLoginService
 
@@ -375,21 +385,27 @@ In such case you don't have to extend `AbstractLoginService` but instead use a p
 service called `DirectLoginService`, for example:
 
 ```java
-googleSSOButton.addSignInListener(e -> {
-    try {
-        if (e.getFailure() != null) {
-            throw e.getFailure();
-        }
-        var userInfo = e.userInfo;
-        if (config.ssoOnlyAllowEmailsEndingWith != null && !userInfo.email.endsWith(config.ssoOnlyAllowEmailsEndingWith)) {
-            throw new FailedLoginException("Only " + config.ssoOnlyAllowEmailsEndingWith + " e-mails accepted");
-        }
-        DirectLoginService.get().login(userInfo.getEmail(), Set.of("user"));
-    } catch (Exception e) {
-        log.warn("Google Login failed", e);
-        showErrorNotification("Google Login failed");
+googleSignInButton.addSignInListener(event -> {
+    if (event.isError()) {
+        onLoginFailed(event.getFailure());
+        return;
     }
+    // the ID token has already been verified server-side, so this e-mail can be trusted
+    final String email = event.getUserInfo().email();
+    if (!email.endsWith("@yourcompany.com")) {
+        onLoginFailed(new FailedLoginException("Only @yourcompany.com e-mails are accepted"));
+        return;
+    }
+    DirectLoginService.get().login(email, Set.of("ROLE_USER"));
 });
+```
+where `onLoginFailed()` is your own:
+```java
+private void onLoginFailed(@NotNull Throwable failure) {
+    log.warn("Google Login failed", failure);
+    Notification.show("Login failed: " + failure.getMessage())
+            .addThemeVariants(NotificationVariant.LUMO_ERROR);
+}
 ```
 
 ### Using both external authentication system and a locally stored users
@@ -400,65 +416,59 @@ Here we expect that you already have a login service implemented. The solution i
 function to your existing login service which performs the direct login, similar to `DirectLoginService.login()`;
 you then call the `loginDirectly()` function after you validate the security token.
 
-An example of such a `loginDireectly()` function:
+An example of such a `loginDirectly()` function:
 ```java
-public class MyLoginService extends AbstractLoginService<MyUser> {
-  //...
+public final class MyLoginService extends AbstractLoginService<User> {
+  // login(username, password) and toUserWithRoles() as above
+
   /**
-   * Logs in given user.
-   * Expects that the user has been authenticated by an external authentication system, and the security token has been validated.
+   * Logs in given user, no password asked. Expects that the user has already been
+   * authenticated by an external authentication system, and that its security token
+   * has been validated server-side.
    */
-  public void loginDirectly(@NotNull String username) {
-    // if you decide to only log in users that already have an account - check that the user exists in your database
-    final User user = User.dao.findByUsername(username); // load the user from the database
+  public void loginDirectly(@NotNull String email) throws LoginException {
+    final User user = User.dao.findByUsername(email);
     if (user == null) {
-      throw new FailedLoginException("Invalid username or password");
+      throw new FailedLoginException("Invalid user");
     }
-
-    // alternatively, you can allow any user from your organization to log in, creating the account as necessary
-    final User user = User.dao.findByUsername(username); // load the user from the database
-    if (user == null) {
-      // check that the username is an e-mail from our company
-      if (!username.endsWith("@yourcompany.com")) {
-        throw new FailedLoginException("Invalid user");
-      }
-      user = new User(username, Set.of("user"));
-      user.create();
-    }
-
-    // all looks good. Store the user to Vaadin session, concluding the authentication process, and navigate to the main view.
-    login(new SimpleUserWithRoles(username, roles));
+    // all looks good: store the user into the Vaadin session, concluding the
+    // authentication process, and navigate to the main route.
+    login(user);
   }
 }
+```
+
+The example above only lets in users that already have a local account. To create the account on
+first sign-in instead, replace the `throw` with the account creation - but keep a check that the
+e-mail belongs to your organization, otherwise anyone with a Google account gets in:
+```java
+User user = User.dao.findByUsername(email);
+if (user == null) {
+  if (!email.endsWith("@yourcompany.com")) {
+    throw new FailedLoginException("Invalid user");
+  }
+  user = new User();
+  user.setUsername(email);
+  user.setRoles("ROLE_USER");
+  user.save();
+}
+login(user);
 ```
 
 ## Other Authentication Mechanisms
 
 There are many security frameworks already present in Java. However, while attempting
-to support all authentication/authorization schemes those frameworks have became highly
+to support all authentication/authorization schemes those frameworks have become highly
 abstract and hard to understand. And rightly so: the authentication schemes are wildly
-variant:
+variant - username+password against a SQL database or against LDAP/AD, client-side x509
+certificates, Kerberos tickets via NTLM/SPNEGO (the Waffle library), SAML, OAuth2, smart cards,
+fingerprints, the servlet container's own `ServletContext.login()`, all of it with or without SSO.
 
-* Authentication using username + password:
-    * Against a local SQL database of users
-    * Against a LDAP/AD server
-* Client-side x509 certificates
-* Kerberos-provided security token (client-to-server tickets):
-    * Authentication via NTLM/SPNEGO/Windows login via a NTLM servlet filter (the Waffle library)
-* SAML-based solutions which are anything but simple
-* Oauth2
-* Other means: smart cards, fingerprints, ...
-* All that while supporting SSO, or using the Servlet container-provided authentication mechanism
-  (the `ServletContext.login()` method).
-
-It is impossible to create an API convering all those cases without going abstraction-crazy.
+It is impossible to create an API covering all those cases without going abstraction-crazy.
 That's why we deliberately avoid to use an all-encompassing library like [Apache Shiro](https://shiro.apache.org/)
 or [Spring Security](https://projects.spring.io/spring-security/)
 with insanely complex APIs. We also don't provide our own authentication API (since it would
 either be incomplete or complex). In this case, the best abstraction is no abstraction at all.
-
-However, if need be, we may add support for most used combinations (e.g. username+password via LDAP).
-A standalone library will then be created.
 
 Your best bet is to implement your own `MyLoginService` and offer a `login()` function which
 could for example authenticate the user against an LDAP server.

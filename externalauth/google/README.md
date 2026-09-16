@@ -34,19 +34,19 @@ dependencies {
 To create the button:
 ```java
 public class LoginRoute extends VerticalLayout {
-  private var googleSignInButton = new GoogleSignInButton(CLIENT_ID);
+  private final GoogleSignInButton googleSignInButton = new GoogleSignInButton(CLIENT_ID);
   public LoginRoute() {
     // ...
     add(googleSignInButton);
     googleSignInButton.addSignInListener(e -> {
-      if (e.isOK()) {
+      if (e.isOk()) {
         try {
           var userInfo = e.getUserInfo();
-          if (!userInfo.getEmail().endsWith("@yourcompany.com")) {
+          if (!userInfo.email().endsWith("@yourcompany.com")) {
             // additional check that the e-mail indeed belongs to the company.
             throw new FailedLoginException("Invalid e-mail address");
           }
-          MyLoginService.get().loginDirectly(userInfo.getEmail());
+          MyLoginService.get().loginDirectly(userInfo.email());
         } catch (Exception ex) {
             onLoginFail(ex);
         }
@@ -55,7 +55,7 @@ public class LoginRoute extends VerticalLayout {
       }
     });
   }
-  private void onLoginFail(Exception ex) {
+  private void onLoginFail(Throwable ex) {
       log.error("Login failed", ex);
       Notification.show("Login failed: " + ex.getMessage()).addThemeVariants(NotificationVariant.LUMO_ERROR);
   }
@@ -71,5 +71,5 @@ Then, add the `GoogleSignInButton` somewhere to your login UI:
 ## Further reading
 
 Please make sure to read the
-[Using with External Authentication Systems" Vaadin Simple Security documentation](https://github.com/mvysny/vaadin-simple-security?tab=readme-ov-file#using-with-external-authentication-systems),
+["Using with External Authentication Systems" Vaadin Simple Security documentation](https://github.com/mvysny/vaadin-simple-security?tab=readme-ov-file#using-with-external-authentication-systems),
 to correctly understand how to use this kind of authentication.
