@@ -8,24 +8,32 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Thrown by <i>your app</i> when the current user must not see a route, in a case
- * {@code @RolesAllowed} can not express - typically a per-document check:
+ * Thrown by <i>your app</i> to abort a route the current user must not see, in a case
+ * {@code @RolesAllowed} can not express - typically a per-document check, from a spot that
+ * holds no {@link com.vaadin.flow.router.BeforeEvent} to reroute with:
  *
  * <pre>{@code
- * @Route("document")
+ * @Route("document/:documentId")
  * @PermitAll
- * public class DocumentRoute extends VerticalLayout implements HasUrlParameter<Long> {
- *     public void setParameter(BeforeEvent event, Long documentId) {
- *         final Document doc = Document.getById(documentId);
+ * public class DocumentRoute extends VerticalLayout implements AfterNavigationObserver {
+ *     @Override
+ *     public void afterNavigation(AfterNavigationEvent event) {
+ *         final Document doc = Document.getById(event.getRouteParameters().getLong("documentId").orElseThrow());
  *         if (!doc.isVisibleTo(InMemoryLoginService.get().getCurrentPrincipal())) {
- *             throw new AccessRejectedException("Document " + documentId + " is not yours", getClass(), Set.of());
+ *             // AfterNavigationEvent offers no rerouteTo(): throwing is the only way to stop here
+ *             throw new AccessRejectedException("Document is not yours", getClass(), Set.of());
  *         }
  *     }
  * }
  * }</pre>
  *
- * <p>vaadin-simple-security never throws this itself - {@link SimpleNavigationAccessControl}
- * guards routes by role, and only your app knows the rest.
+ * <p>Throwing <i>is</i> the feature: it aborts wherever you are. Where a {@code BeforeEvent} is
+ * at hand - {@code beforeEnter()}, {@code HasUrlParameter.setParameter()} - take Vaadin's own way
+ * out instead, {@code event.forwardTo(..)} or {@code event.rerouteToError(..)} followed by
+ * {@code return}. This exception is for everywhere else: {@code afterNavigation()}, a click
+ * listener, a service below the UI. The library itself never throws it - it guards routes by
+ * role from a UI-level listener ({@link SimpleNavigationAccessControl}), before the route is
+ * even constructed, and only your app knows the rest.
  *
  * <p>Uncaught, it lands in Vaadin's {@link com.vaadin.flow.router.RouteAccessDeniedError},
  * which rewrites it into a plain 404 - a route you may not see must not look different from
@@ -33,11 +41,12 @@ import java.util.Set;
  * {@code HasErrorParameter<AccessRejectedException>}: {@link #getRouteClass()} and
  * {@link #getMissingRoles()} are there to tell the user what was missing.
  *
- * <p>Why this exists next to Vaadin's own {@link AccessDeniedException}: Vaadin creates that
- * one reflectively from a class literal, so it must keep its no-arg constructor and carries
- * nothing - the reason travels beside it, as {@code ErrorParameter.getCustomMessage()}.
- * Thrown from your own code there is no such channel, so the message, the route and the roles
- * live here, {@link #getMessage()} included, backed by a field of its own.
+ * <p>Why this exists next to Vaadin's own {@link AccessDeniedException}: Vaadin never throws
+ * that one - it names the class in {@code rerouteToError(Class, String)} and creates it
+ * reflectively, so it must keep its no-arg constructor and carries nothing; the reason rides
+ * along separately, as {@code ErrorParameter.getCustomMessage()}. An exception you throw
+ * yourself has no such channel, so the message, the route and the roles live here,
+ * {@link #getMessage()} included, backed by a field of its own.
  *
  * <p>For the same reason this class can not be named in
  * {@code @AccessDeniedErrorRouter(rerouteToError = ...)}: Vaadin would fail to instantiate it.
