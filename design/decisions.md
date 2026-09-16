@@ -26,3 +26,15 @@ live in the container's realm configuration, outside the app's database (**The a
 its users**). Why no authentication API of our own: it would be either incomplete or as abstract
 as Shiro. The cost we carry: every scheme beyond username + password is the app's own `login()`,
 with `DirectLoginService` and `externalauth/google` as the only help.
+
+## D_app_throws_its_own — Why does the app declare the exception it throws when it rejects access itself?
+
+`AccessRejectedException` shipped through 1.x and is gone in 2.0. Extending Vaadin's
+`AccessDeniedException` made it a routing exception wherever it was thrown: from a navigation hook
+Flow's `searchBySuperType` hands it to `RouteAccessDeniedError`, which rewrites it to a bare 404 and
+drops the message and roles it carried; from a click listener `ErrorHandlerUtil` matches the exact
+type, so the subclass is passed over where its parent would be intercepted. Nothing survived
+stripping that superclass but a message and two fields an app declares in three lines, carrying what
+its own error dialog needs rather than what we guessed. So the app throws its own exception and
+shows it in its own `ErrorHandler`, and Vaadin's `AccessDeniedException` stays Vaadin's to throw.
+The cost we carry: the rule is README prose, not a type the compiler enforces.

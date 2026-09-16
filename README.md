@@ -168,6 +168,60 @@ whether to allow access or not.
 Please see the [Access Annotations](https://vaadin.com/docs/latest/security/advanced-topics/securing-plain-java-app/#access-annotations)
 Vaadin documentation on what kind of authorization annotations are available.
 
+### Checks the annotations can not express
+
+`@RolesAllowed` answers "may this user see this route at all". It can not answer "is this document
+yours" - that needs the data, so the check moves into your code. Where it goes depends on where the
+input arrives:
+
+| The check needs | Put it in |
+|---|---|
+| nothing but roles | `@RolesAllowed` on the route - nothing is constructed |
+| data from the URL | `beforeEnter()`, or `HasUrlParameter.setParameter()`: call `event.forwardTo(..)` or `event.rerouteToError(..)`, then `return` |
+| anything else - a button click, a service call | throw your own exception, and show it in your `ErrorHandler` |
+
+The route's constructor is deliberately missing from that table. Navigating twice in a row to the
+same route reuses the instance, so a check in the constructor runs once per instance, not once per
+navigation - change what the check reads, navigate again, and it is skipped.
+
+For the third row, declare an exception carrying whatever your error dialog needs to show:
+
+```java
+public class DocumentAccessRejectedException extends RuntimeException {
+    private final long documentId;
+    public DocumentAccessRejectedException(long documentId) {
+        super("Document " + documentId + " is not yours");
+        this.documentId = documentId;
+    }
+    public long getDocumentId() { return documentId; }
+}
+```
+
+Throwing aborts wherever you are, which is the point: in a click listener there is no
+`BeforeEvent` to reroute with, and a bare `return` only leaves your own method. Register an
+`ErrorHandler` to turn it into feedback:
+
+```java
+public class ApplicationServiceInitListener implements VaadinServiceInitListener {
+    @Override
+    public void serviceInit(@NotNull ServiceInitEvent event) {
+        event.getSource().addSessionInitListener(e -> e.getSession().setErrorHandler(errorEvent -> {
+            if (errorEvent.getThrowable() instanceof DocumentAccessRejectedException ex) {
+                Notification.show(ex.getMessage());
+            } else {
+                new DefaultErrorHandler().error(errorEvent);
+            }
+        }));
+    }
+}
+```
+
+Do not throw Vaadin's own `com.vaadin.flow.router.AccessDeniedException` yourself. Vaadin throws it,
+and handles it: from a navigation hook it is rewritten into a 404 - deliberately, since a route you
+may not see must not look different from one that does not exist - and from a click listener
+Vaadin's `DefaultErrorHandler` swaps its access-denied error view into the page instead of letting
+your `ErrorHandler` see it.
+
 ## Users stored in SQL
 
 We recommend to use [jdbi-orm](https://gitlab.com/mvysny/jdbi-orm) or [JOOQ](https://www.jooq.org/) to access the database,
