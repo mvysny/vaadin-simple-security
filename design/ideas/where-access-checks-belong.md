@@ -26,7 +26,7 @@ construction at all.
 | UI `BeforeEnterListener` | yes | `forwardTo` / `rerouteTo` / `rerouteToError` | n/a — nothing built yet |
 | route `beforeEnter`, `HasUrlParameter.setParameter` | yes | same | **no** — you must `return` yourself |
 | route constructor | no | — | throwing only |
-| `afterNavigation` | `AfterNavigationEvent`: getters only | **none** | throwing only |
+| `afterNavigation` | `AfterNavigationEvent`: getters only | **none**, by design | throwing only |
 | click listener, service below the UI | no | — | throwing only |
 
 `rerouteTo` only flags the event; it is cooperative, not an abort. That's the gap
@@ -45,6 +45,63 @@ construction at all.
 - with **no** app-provided error view: Vaadin's `RouteAccessDeniedError` takes it (it handles the
   `AccessDeniedException` supertype) and rewrites it to a plain **404**, deliberately — a denied
   route must look like a missing one (flow#18870).
+
+## Why `afterNavigation` has no reroute — intentional, not an omission
+
+Dug through flow-server 25.2.7 sources and the tracker (2026-09-16). It is a **guarantee sold to
+the listener**, stated the day the event landed.
+
+**Mechanically**, `AbstractNavigationStateRenderer.handle()`:
+
+```java
+247  ui.getInternals().showRouteTarget(event.getLocation(), componentInstance, routerLayouts);
+250  int statusCode = locationChangeEvent.getStatusCode();
+251  validateStatusCode(statusCode, routeTargetType);
+253  // After navigation event
+254  handleAfterNavigationEvents(ui, parameters);
+```
+
+DOM committed at 247, status code captured at 250 — both *before* the event fires at 254. There is
+nothing a flag could still influence; `handle()` returns that `statusCode` whatever listeners do.
+
+**By design**, flow#2347 (Sep 2017) asked for the event with exactly one use case: highlight the
+active menu item. In the review of flow#2433 the tutorial paragraph was rewritten to: *"When this
+method is triggered, it is guaranteed that there will be no further redirects, so you can safely use
+the location returned by the `AfterNavigationEvent`."* That sentence still stands in today's docs —
+"the third and last event… further reroutes and similar changes are no longer possible".
+
+**The vestige, and it is a trap.** The pre-Flow router had this hook *with* reroute: hummingbird#688
+"Let the activated view trigger the 404 handler" is our use case verbatim. Its PR flow#1175 first
+used a `RerouteException`, until Artur's review killed it ("*maybe there is some truth after all in
+'don't use exceptions for control flow'*") in favour of `LocationChangeEvent.rerouteTo(..)` —
+legitimate then, because `View.onLocationChange` ran *before* rendering. The 1.0 split moved reroute
+to `BeforeEvent` and demoted `LocationChangeEvent` to a data carrier, **but never removed the
+methods**. So this compiles today and silently does nothing:
+
+```java
+public void afterNavigation(AfterNavigationEvent e) {
+    e.getLocationChangeEvent().rerouteTo(SomeView.class); // inert
+}
+```
+
+`LocationChangeEvent.getRerouteTarget()` has no caller in flow-server — verified in the 25.2.7
+sources and by GitHub code search on `main`; the only production `getRerouteTarget()` call is
+`BeforeEvent`'s, in `AbstractNavigationStateRenderer.reroute(..)`. `setStatusCode` is likewise inert
+from `afterNavigation`, being read at line 250.
+
+**`ui.navigate(..)` from `afterNavigation`** is permitted — `Router.handleNavigationForLocation`
+only blocks re-entry to the *same* path, so a nested navigation to a different one runs. Still worse
+than throwing for a security check: the denied view was constructed, attached and shown, and the
+outer `handle()` returns the *original* route's status code.
+
+**Caveat on throwing** (flow#22146): a throw from a **layout**'s `afterNavigation`, with the error
+view `@ParentLayout(ThatLayout.class)`, re-instantiates the layout for the error view, throws again,
+escapes `ErrorStateRenderer` and kills navigation permanently. Fixed by flow#23177 (24.9.10 /
+25.0.4 / 25.1.0-alpha3) with a fallback to `InternalServerError`. A throw from a *route*'s
+`afterNavigation` — what we recommend — never hit it.
+
+No open feature request asks for reroute in `AfterNavigationEvent`; of the 27 issues mentioning
+`afterNavigation`, every one is about firing at the wrong time or losing parameters.
 
 ## The case-by-case tree
 
@@ -100,3 +157,7 @@ again, and the constructor check is skipped. `beforeEnter` and `afterNavigation`
 - `Q_upstream_doc_bug`: nothing in `@AccessDeniedErrorRouter`'s javadoc says the exception class
   needs a public no-arg constructor (Flow instantiates it reflectively). A doc bug worth
   reporting upstream.
+- `Q_upstream_inert_reroute`: report `LocationChangeEvent.rerouteTo` / `setStatusCode` as dead API —
+  public, undeprecated, reachable from `AfterNavigationEvent.getLocationChangeEvent()`, and a no-op
+  since the 1.0 router split. Deprecate, or say so in the javadoc. Arguably a worse trap than having
+  no reroute API at all, since it compiles and fails silently.
