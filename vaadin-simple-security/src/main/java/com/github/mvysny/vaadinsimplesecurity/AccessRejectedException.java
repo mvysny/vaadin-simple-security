@@ -8,37 +8,48 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * An exception thrown when the current user does not have access to given route.
- * Note that vaadin-simple-security will not throw this exception on itself:
- * you should throw this exception when you implement your custom authorization logic in
- * the route's `AfterNavigationHandler.afterNavigation()` (or in the route constructor).
- * <p></p>
- * For example, often the route takes an ID of a document as a parameter, and you need to check whether
- * the current user can access that particular document. This case can not be handled by the simple [AllowRoles] logic.
- * <p></p>
- * You are responsible for catching of this exception in Vaadin's `HasErrorParameter`.
+ * Thrown by <i>your app</i> when the current user must not see a route, in a case
+ * {@code @RolesAllowed} can not express - typically a per-document check:
+ *
+ * <pre>{@code
+ * @Route("document")
+ * @PermitAll
+ * public class DocumentRoute extends VerticalLayout implements HasUrlParameter<Long> {
+ *     public void setParameter(BeforeEvent event, Long documentId) {
+ *         final Document doc = Document.getById(documentId);
+ *         if (!doc.isVisibleTo(InMemoryLoginService.get().getCurrentPrincipal())) {
+ *             throw new AccessRejectedException("Document " + documentId + " is not yours", getClass(), Set.of());
+ *         }
+ *     }
+ * }
+ * }</pre>
+ *
+ * <p>vaadin-simple-security never throws this itself - {@link SimpleNavigationAccessControl}
+ * guards routes by role, and only your app knows the rest.
+ *
+ * <p>Uncaught, it lands in Vaadin's {@link com.vaadin.flow.router.RouteAccessDeniedError},
+ * the generic 403 page. To show your own, give the app a route implementing
+ * {@code HasErrorParameter<AccessRejectedException>}: {@link #getRouteClass()} and
+ * {@link #getMissingRoles()} are there to tell the user what was missing.
+ *
+ * <p>Why this exists at all, next to Vaadin's own {@link AccessDeniedException}: that one is
+ * parameterless - no message, no route, no roles - so everything a 403 page would show has
+ * to be added here, {@link #getMessage()} included, backed by a field of its own.
  */
 public class AccessRejectedException extends AccessDeniedException {
     @NotNull
     private final String message;
-    /**
-     * The view which was navigated to. null if the exception was not thrown upon navigation but rather on e.g. button click.
-     */
     @Nullable
     private final Class<?> routeClass;
-    /**
-     * Which roles were missing. May be empty if the exception is thrown because the [AllowRoles] annotation is missing on the view, or there
-     * is some other reason for which the set of missing roles can not be provided.
-     */
     @NotNull
     private final Set<String> missingRoles;
 
     /**
-     * Creates the exception.
-     * @param message {@link Throwable#getMessage()}.
-     * @param routeClass the view which was navigated to. null if the exception was not thrown upon navigation but rather on e.g. button click.
-     * @param missingRoles Which roles were missing. May be empty if the exception is thrown because the [AllowRoles] annotation is missing on the view, or there
-     * is some other reason for which the set of missing roles can not be provided.
+     * @param message the detail message, e.g. "Document 25 is not yours".
+     * @param routeClass the route the access was rejected to; null if not thrown upon navigation
+     *                   but on e.g. a button click.
+     * @param missingRoles the roles the user would have needed; may be empty when the rejection
+     *                     wasn't about roles in the first place.
      */
     public AccessRejectedException(@NotNull String message, @Nullable Class<?> routeClass, @NotNull Set<String> missingRoles) {
         super();
@@ -48,8 +59,8 @@ public class AccessRejectedException extends AccessDeniedException {
     }
 
     /**
-     * The route which was navigated to. null if the exception was not thrown upon navigation but rather on e.g. button click.
-     * @return the route to which the access is denied to.
+     * @return the route the access was rejected to, or null if this wasn't thrown upon
+     * navigation but on e.g. a button click.
      */
     @Nullable
     public Class<?> getRouteClass() {
@@ -57,9 +68,8 @@ public class AccessRejectedException extends AccessDeniedException {
     }
 
     /**
-     * Which roles were missing. May be empty if the exception is thrown because the [AllowRoles] annotation is missing on the view, or there
-     * is some other reason for which the set of missing roles can not be provided.
-     * @return missing roles, may be empty.
+     * @return the roles the user would have needed; may be empty when the rejection wasn't
+     * about roles in the first place.
      */
     @NotNull
     public Set<String> getMissingRoles() {
