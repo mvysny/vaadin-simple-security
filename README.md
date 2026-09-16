@@ -171,14 +171,14 @@ Vaadin documentation on what kind of authorization annotations are available.
 ### Checks the annotations can not express
 
 `@RolesAllowed` answers "may this user see this route at all". It can not answer "is this document
-yours" - that needs the data, so the check moves into your code. Where it goes depends on where the
-input arrives:
+yours" - that needs the data, so the check moves into your code. Where it goes depends on when it
+can run:
 
-| The check needs | Put it in |
+| The check | Put it in |
 |---|---|
-| nothing but roles | `@RolesAllowed` on the route - nothing is constructed |
-| data from the URL | `beforeEnter()`, or `HasUrlParameter.setParameter()`: call `event.forwardTo(..)` or `event.rerouteToError(..)`, then `return` |
-| anything else - a button click, a service call | throw your own exception, and show it in your `ErrorHandler` |
+| needs nothing but roles | `@RolesAllowed` on the route - nothing is constructed |
+| can run during navigation, from the URL, the session or a service | `beforeEnter()`, or `HasUrlParameter.setParameter()` for a URL parameter: `event.forwardTo(..)` or `event.rerouteToError(..)`, then `return` |
+| happens later - a button click, a service call | throw your own exception, and show it in your `ErrorHandler` |
 
 The route's constructor is deliberately missing from that table. Navigating twice in a row to the
 same route reuses the instance, so a check in the constructor runs once per instance, not once per
@@ -216,11 +216,11 @@ public class ApplicationServiceInitListener implements VaadinServiceInitListener
 }
 ```
 
-Do not throw Vaadin's own `com.vaadin.flow.router.AccessDeniedException` yourself. Vaadin throws it,
-and handles it: from a navigation hook it is rewritten into a 404 - deliberately, since a route you
-may not see must not look different from one that does not exist - and from a click listener
-Vaadin's `DefaultErrorHandler` swaps its access-denied error view into the page instead of letting
-your `ErrorHandler` see it.
+Do not throw Vaadin's own `com.vaadin.flow.router.AccessDeniedException` yourself: it is Vaadin's to
+throw, and Vaadin already handles it. From a navigation hook it is rewritten into a 404 -
+deliberately, since a route you may not see must not look different from one that does not exist, so
+your message is dropped. From a click listener, an app that has not replaced the error handler gets
+Vaadin's access-denied error view swapped into the page, with no navigation.
 
 ## Users stored in SQL
 
