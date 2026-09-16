@@ -28,13 +28,19 @@ import java.util.Set;
  * guards routes by role, and only your app knows the rest.
  *
  * <p>Uncaught, it lands in Vaadin's {@link com.vaadin.flow.router.RouteAccessDeniedError},
- * the generic 403 page. To show your own, give the app a route implementing
+ * which rewrites it into a plain 404 - a route you may not see must not look different from
+ * one that doesn't exist. To say more than that, give the app a route implementing
  * {@code HasErrorParameter<AccessRejectedException>}: {@link #getRouteClass()} and
  * {@link #getMissingRoles()} are there to tell the user what was missing.
  *
- * <p>Why this exists at all, next to Vaadin's own {@link AccessDeniedException}: that one is
- * parameterless - no message, no route, no roles - so everything a 403 page would show has
- * to be added here, {@link #getMessage()} included, backed by a field of its own.
+ * <p>Why this exists next to Vaadin's own {@link AccessDeniedException}: Vaadin creates that
+ * one reflectively from a class literal, so it must keep its no-arg constructor and carries
+ * nothing - the reason travels beside it, as {@code ErrorParameter.getCustomMessage()}.
+ * Thrown from your own code there is no such channel, so the message, the route and the roles
+ * live here, {@link #getMessage()} included, backed by a field of its own.
+ *
+ * <p>For the same reason this class can not be named in
+ * {@code @AccessDeniedErrorRouter(rerouteToError = ...)}: Vaadin would fail to instantiate it.
  */
 public class AccessRejectedException extends AccessDeniedException {
     @NotNull
