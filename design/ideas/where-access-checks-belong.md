@@ -157,10 +157,16 @@ again, and the constructor check is skipped. `beforeEnter` and `afterNavigation`
 - `Q_upstream_doc_bug`: nothing in `@AccessDeniedErrorRouter`'s javadoc says the exception class
   needs a public no-arg constructor (Flow instantiates it reflectively). A doc bug worth
   reporting upstream.
-- `Q_upstream_inert_reroute`: **filed as flow#25739** — `LocationChangeEvent.rerouteTo` /
-  `setStatusCode` are public, undeprecated, reachable from
-  `AfterNavigationEvent.getLocationChangeEvent()`, and inert since Flow 1.0. Asked for a deprecation,
-  a warning, or at least a javadoc note. Probed before filing: the reroute is dropped, the view is
-  shown, `Router.navigate(..)` returns 200, nothing is logged. Note `rerouteTo` takes a
-  `NavigationHandler` / `NavigationState`, not a `Class` — the trap costs a `NavigationStateBuilder`
-  to fall into.
+- `Q_upstream_inert_reroute`: **filed as flow#25739, accepted as a defect.** `LocationChangeEvent`'s
+  `rerouteTo` / `setStatusCode` are public, undeprecated, reachable from
+  `AfterNavigationEvent.getLocationChangeEvent()`, and inert since Flow 1.0. Probed before filing:
+  the reroute is dropped, the view is shown, `Router.navigate(..)` returns 200, nothing is logged.
+  Note `rerouteTo` takes a `NavigationHandler` / `NavigationState`, not a `Class` — the trap costs a
+  `NavigationStateBuilder` to fall into.
+  Agreed upstream fix: deprecate the three reroute methods `forRemoval`; WARN from `rerouteTo`
+  always and from `setStatusCode` only once the navigation is committed (the flag flips when
+  `AfterNavigationEvent` is constructed, which is the only construction site and is after the status
+  read), leaving the legitimate `HasErrorParameter` path — `ErrorStateRenderer.notifyNavigationTarget`
+  — quiet. We argued against fail-fast: a throw there is caught by `Router.navigate`'s
+  `catch (Exception)` and rendered as an error page, which is less legible than the no-op. Open:
+  whether the deprecation is backported to 24.x, where most of the exposed users are.
