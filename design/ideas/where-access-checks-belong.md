@@ -157,7 +157,10 @@ again, and the constructor check is skipped. `beforeEnter` and `afterNavigation`
 - `Q_upstream_doc_bug`: nothing in `@AccessDeniedErrorRouter`'s javadoc says the exception class
   needs a public no-arg constructor (Flow instantiates it reflectively). A doc bug worth
   reporting upstream.
-- `Q_upstream_inert_reroute`: report `LocationChangeEvent.rerouteTo` / `setStatusCode` as dead API —
-  public, undeprecated, reachable from `AfterNavigationEvent.getLocationChangeEvent()`, and a no-op
-  since the 1.0 router split. Deprecate, or say so in the javadoc. Arguably a worse trap than having
-  no reroute API at all, since it compiles and fails silently.
+- `Q_upstream_inert_reroute`: **filed as flow#25739** — `LocationChangeEvent.rerouteTo` /
+  `setStatusCode` are public, undeprecated, reachable from
+  `AfterNavigationEvent.getLocationChangeEvent()`, and inert since Flow 1.0. Asked for a deprecation,
+  a warning, or at least a javadoc note. Probed before filing: the reroute is dropped, the view is
+  shown, `Router.navigate(..)` returns 200, nothing is logged. Note `rerouteTo` takes a
+  `NavigationHandler` / `NavigationState`, not a `Class` — the trap costs a `NavigationStateBuilder`
+  to fall into.
