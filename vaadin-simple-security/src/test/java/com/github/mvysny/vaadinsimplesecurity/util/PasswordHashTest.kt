@@ -29,6 +29,15 @@ class PasswordHashTest {
         expect(false, "$hash1, $hash2") { hash1 == hash2 }
     }
 
+    @Test fun slowEquals() {
+        expect(true) { PasswordHash.slowEquals("foo".toByteArray(), "foo".toByteArray()) }
+        expect(true) { PasswordHash.slowEquals(byteArrayOf(), byteArrayOf()) }
+        expect(false) { PasswordHash.slowEquals("foo".toByteArray(), "bar".toByteArray()) }
+        // differing lengths: the loop stops at the shorter array, the length xor makes it false
+        expect(false) { PasswordHash.slowEquals("foo".toByteArray(), "foobar".toByteArray()) }
+        expect(false) { PasswordHash.slowEquals("foobar".toByteArray(), "foo".toByteArray()) }
+    }
+
     @Test fun originalPasswordHashTest() {
         // Print out 10 hashes
         for (i in 0..9) println(PasswordHash.createHash("p\r\nassw0Rd!"))

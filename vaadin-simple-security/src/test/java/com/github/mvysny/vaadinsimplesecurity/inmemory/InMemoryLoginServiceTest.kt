@@ -62,4 +62,35 @@ class InMemoryLoginServiceTest {
             expect("admin") { InMemoryLoginService.get().currentPrincipal?.username }
         }
     }
+    @Nested inner class loginDirectly {
+        @Test fun `logs in without a password`() {
+            InMemoryLoginService.get().loginDirectly(InMemoryUser("admin", "admin", setOf("admin")))
+            expect("admin") { InMemoryLoginService.get().currentUser?.username }
+            expect(setOf("admin")) { InMemoryLoginService.get().currentUserRoles }
+        }
+    }
+    @Nested inner class logout {
+        @Test fun `clears the logged-in user`() {
+            InMemoryLoginService.get().login("admin", "admin")
+            InMemoryLoginService.get().logout()
+            expect(false) { InMemoryLoginService.get().isLoggedIn }
+            expect(null) { InMemoryLoginService.get().currentUser }
+            expect(null) { InMemoryLoginService.get().currentPrincipal }
+            expect(setOf()) { InMemoryLoginService.get().currentUserRoles }
+        }
+        @Test fun `succeeds even when nobody is logged in`() {
+            InMemoryLoginService.get().logout()
+            expect(false) { InMemoryLoginService.get().isLoggedIn }
+        }
+    }
+    @Nested inner class isUserInRole {
+        @Test fun `false when not logged in`() {
+            expect(false) { InMemoryLoginService.get().isUserInRole("admin") }
+        }
+        @Test fun `true only for the roles of the logged-in user`() {
+            InMemoryLoginService.get().login("admin", "admin")
+            expect(true) { InMemoryLoginService.get().isUserInRole("admin") }
+            expect(false) { InMemoryLoginService.get().isUserInRole("user") }
+        }
+    }
 }

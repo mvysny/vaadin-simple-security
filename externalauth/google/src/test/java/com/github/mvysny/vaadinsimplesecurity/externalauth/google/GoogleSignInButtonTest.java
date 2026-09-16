@@ -7,6 +7,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class GoogleSignInButtonTest {
@@ -28,15 +32,34 @@ class GoogleSignInButtonTest {
     @Test
     public void smokeAPITest() {
         final GoogleSignInButton button = new GoogleSignInButton(CLIENT_ID);
+
+        assertFalse(button.isItpSupport());
+        button.setItpSupport(true);
+        assertTrue(button.isItpSupport());
         button.setItpSupport(false);
+        assertFalse(button.isItpSupport());
+
         assertEquals(GoogleSignInButton.Context.Signin, button.getContext());
         button.setContext(GoogleSignInButton.Context.Use);
+        assertEquals(GoogleSignInButton.Context.Use, button.getContext());
+
+        assertTrue(button.isCancelOnTapOutside());
         button.setCancelOnTapOutside(false);
-        button.setLoginHint(null);
+        assertFalse(button.isCancelOnTapOutside());
+
+        assertNull(button.getLoginHint());
         button.setLoginHint("foo@bar.com");
-        button.setHd(null);
+        assertEquals("foo@bar.com", button.getLoginHint());
+        button.setLoginHint(null);
+        assertNull(button.getLoginHint());
+
+        assertNull(button.getHd());
         button.setHd("*");
+        assertEquals("*", button.getHd());
         button.setHd("foo@bar.com");
+        assertEquals("foo@bar.com", button.getHd());
+        button.setHd(null);
+        assertNull(button.getHd());
 
         // button styles
         assertEquals(GoogleSignInButton.Type.Standard, button.getButtonType());
@@ -66,9 +89,51 @@ class GoogleSignInButtonTest {
         assertNull(button.getButtonMinWidth());
         button.setButtonMinWidth(200);
         assertEquals(200, button.getButtonMinWidth());
+        button.setButtonMinWidth(null);
+        assertNull(button.getButtonMinWidth());
 
         button.addSignInListener(e -> {
             System.out.println(e);
         });
+    }
+
+    @Test
+    public void signInWithBogusTokenFiresFailureEvent() throws Exception {
+        final GoogleSignInButton button = new GoogleSignInButton(CLIENT_ID);
+        UI.getCurrent().add(button);
+        final List<GoogleSignInButton.OnSignInEvent> events = new ArrayList<>();
+        button.addSignInListener(events::add);
+
+        onSignIn(button, "this-is-not-a-google-id-token");
+
+        assertEquals(1, events.size());
+        final GoogleSignInButton.OnSignInEvent event = events.get(0);
+        assertTrue(event.isError());
+        assertFalse(event.isOk());
+        assertNull(event.getUserInfo());
+        // a malformed token fails to parse, before the verifier would call Google - the test stays offline
+        assertInstanceOf(IllegalArgumentException.class, event.getFailure());
+    }
+
+    @Test
+    public void successfulSignInEventCarriesUserInfo() {
+        final GoogleSignInButton button = new GoogleSignInButton(CLIENT_ID);
+        final GoogleSignInButton.UserInfo userInfo = new GoogleSignInButton.UserInfo("john@doe.com", "John Doe");
+        final GoogleSignInButton.OnSignInEvent event = new GoogleSignInButton.OnSignInEvent(button, true, userInfo, null);
+
+        assertTrue(event.isOk());
+        assertFalse(event.isError());
+        assertEquals(userInfo, event.getUserInfo());
+        assertNull(event.getFailure());
+    }
+
+    /**
+     * Calls the {@link com.vaadin.flow.component.ClientCallable} method the browser calls when Google
+     * hands it an ID token. It is private, and Karibu has no helper for client-callables, hence reflection.
+     */
+    private static void onSignIn(@NotNull GoogleSignInButton button, @NotNull String idToken) throws Exception {
+        final Method onSignIn = GoogleSignInButton.class.getDeclaredMethod("onSignIn", String.class);
+        onSignIn.setAccessible(true);
+        onSignIn.invoke(button, idToken);
     }
 }

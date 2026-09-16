@@ -8,6 +8,7 @@ import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryUser
 import com.github.mvysny.vaadinsimplesecurity.inmemory.InMemoryUserRegistry
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
+import com.vaadin.flow.function.SerializableSupplier
 import com.vaadin.flow.router.AccessDeniedException
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.router.RouterLayout
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.util.function.Predicate
 import kotlin.test.expect
 
 /**
@@ -167,6 +169,13 @@ class SimpleNavigationAccessControlTest {
         navigateTo<LoginView>()
         expectView<LoginView>()
     }
+    @Test fun `the roles checker grants nothing when nobody is logged in`() {
+        // Vaadin short-circuits on the null principal and never asks; the checker must
+        // still answer false, since it's protected API an app may call itself.
+        val checker = ExposedRolesChecker { null } .getRolesChecker(null)
+        expect(false) { checker.test("admin") }
+        expect(false) { checker.test("") }
+    }
     @Test fun `error route not hijacked by the LoginView`() {
         UI.getCurrent().addBeforeEnterListener { e ->
             e.rerouteToError(RuntimeException("Simulated"), "Simulated")
@@ -174,6 +183,15 @@ class SimpleNavigationAccessControlTest {
         navigateTo(WelcomeView::class)
         _expectInternalServerError("Simulated")
     }
+}
+
+/**
+ * Makes the protected [SimpleNavigationAccessControl.getRolesChecker] callable from the test.
+ */
+class ExposedRolesChecker(loggedInUserSupplier: SerializableSupplier<SimpleUserWithRoles?>) :
+    SimpleNavigationAccessControl(loggedInUserSupplier) {
+    public override fun getRolesChecker(request: VaadinRequest?): Predicate<String> =
+        super.getRolesChecker(request)
 }
 
 class MockedUIWithViewAccessChecker : MockedUI() {
