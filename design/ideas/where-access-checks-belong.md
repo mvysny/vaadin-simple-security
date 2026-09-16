@@ -154,9 +154,14 @@ again, and the constructor check is skipped. `beforeEnter` and `afterNavigation`
   similar — so the app doesn't hand-roll
   `if (!principal.hasRole(..)) throw new AccessRejectedException(..)`? Probably not; it saves one
   line and adds API.
-- `Q_upstream_doc_bug`: nothing in `@AccessDeniedErrorRouter`'s javadoc says the exception class
-  needs a public no-arg constructor (Flow instantiates it reflectively). A doc bug worth
-  reporting upstream.
+- `Q_upstream_doc_bug`: **filed as flow#25748.** Nothing in `@AccessDeniedErrorRouter`'s javadoc says
+  the exception class needs a public no-arg constructor; the requirement is stated two hops away, on
+  `BeforeEvent.rerouteToError(Class)`, which is where `ReflectTools.createInstance` runs. The
+  annotation's own javadoc example satisfies it by accident — an empty class body — so adding a
+  message constructor to the exception silently breaks it. Probed: the denied user gets a 500
+  (`InternalServerError`, `IllegalArgumentException` from `ReflectTools`) instead of the custom
+  access-denied view. Asked for the sentence plus an example that carries an explicit no-arg
+  constructor; suggested startup-time validation as a separate option.
 - `Q_upstream_inert_reroute`: **filed as flow#25739, accepted as a defect.** `LocationChangeEvent`'s
   `rerouteTo` / `setStatusCode` are public, undeprecated, reachable from
   `AfterNavigationEvent.getLocationChangeEvent()`, and inert since Flow 1.0. Probed before filing:
