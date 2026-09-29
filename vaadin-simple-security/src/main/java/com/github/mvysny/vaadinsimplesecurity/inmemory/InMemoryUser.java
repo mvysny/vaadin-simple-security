@@ -13,7 +13,7 @@ import java.util.Set;
  * A simple demo example implementation of a user object, with username, password and roles.
  * Only used for demo/example purposes - your app will most likely use your own
  * <code>User</code> entity, probably loaded from the database.
- * <p></p>
+ * <p>
  * Note the {@link HasPassword} interface which greatly helps with password management
  * and verification.
  */
@@ -51,7 +51,7 @@ public final class InMemoryUser implements Serializable, HasPassword {
     }
 
     /**
-     * @return the username, not null.
+     * {@return the username, not null}
      */
     @NotNull
     public String getUsername() {
@@ -59,7 +59,7 @@ public final class InMemoryUser implements Serializable, HasPassword {
     }
 
     /**
-     * @return allowed roles for this user, not null, may be empty.
+     * {@return allowed roles for this user, not null, may be empty; a defensive copy}
      */
     @NotNull
     public Set<String> getRoles() {

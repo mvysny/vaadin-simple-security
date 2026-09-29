@@ -74,8 +74,14 @@ public class GoogleSignInButton extends Div {
      * with Google, and therefore the information in {@link #getUserInfo()} can be trusted.
      */
     public static final class OnSignInEvent extends ComponentEvent<GoogleSignInButton> {
+        /**
+         * The verified user; null if the sign-in failed.
+         */
         @Nullable
         private final GoogleSignInButton.UserInfo userInfo;
+        /**
+         * Why the sign-in failed; null if it succeeded.
+         */
         @Nullable
         private final Throwable failure;
 
@@ -86,6 +92,8 @@ public class GoogleSignInButton extends Div {
          * @param source     the source component
          * @param fromClient <code>true</code> if the event originated from the client
          *                   side, <code>false</code> otherwise
+         * @param userInfo   the verified user; null if the sign-in failed
+         * @param failure    why the sign-in failed; null if it succeeded
          */
         public OnSignInEvent(@NotNull GoogleSignInButton source, boolean fromClient, @Nullable UserInfo userInfo, @Nullable Throwable failure) {
             super(source, fromClient);
@@ -93,10 +101,16 @@ public class GoogleSignInButton extends Div {
             this.failure = failure;
         }
 
+        /**
+         * {@return true if the sign-in succeeded and {@link #getUserInfo()} is not null}
+         */
         public boolean isOk() {
             return userInfo != null;
         }
 
+        /**
+         * {@return true if the sign-in failed; {@link #getFailure()} holds the cause}
+         */
         public boolean isError() {
             return !isOk();
         }
@@ -170,14 +184,17 @@ public class GoogleSignInButton extends Div {
         return addListener(OnSignInEvent.class, listener);
     }
 
+    /**
+     * {@return whether the One Tap request is cancelled if the user clicks outside the prompt}
+     */
     public boolean isCancelOnTapOutside() {
         return getElement().getProperty("cancel_on_tap_outside", true);
     }
 
     /**
      * This field sets whether or not to cancel the One Tap request if a user clicks outside the prompt.
-     * The default value is true. You can disable it if you set the value to false.
-     * @param cancelOnTapOutside
+     * The default value is true.
+     * @param cancelOnTapOutside false keeps the prompt open on a click outside it.
      */
     public void setCancelOnTapOutside(boolean cancelOnTapOutside) {
         getElement().setProperty("cancel_on_tap_outside", cancelOnTapOutside);
@@ -192,7 +209,7 @@ public class GoogleSignInButton extends Div {
          */
         Signin,
         /**
-         * "Sign up Google"
+         * "Sign up with Google"
          */
         Signup,
         /**
@@ -201,6 +218,9 @@ public class GoogleSignInButton extends Div {
         Use;
     }
 
+    /**
+     * {@return the text of the title and messages in the One Tap prompt}
+     */
     @NotNull
     public Context getContext() {
         final String context = getElement().getProperty("context", "signin");
@@ -209,24 +229,31 @@ public class GoogleSignInButton extends Div {
 
     /**
      * This field changes the text of the title and messages in the One Tap prompt.
-     * @param context
+     * The default value is {@link Context#Signin}.
+     * @param context the prompt text.
      */
     public void setContext(@NotNull Context context) {
         getElement().setProperty("context", context.name().toLowerCase());
     }
 
+    /**
+     * {@return whether the upgraded One Tap UX is enabled on browsers with Intelligent Tracking Prevention}
+     */
     public boolean isItpSupport() {
         return getElement().getProperty("itp_support", false);
     }
 
     /**
-     * This field determines if the <a href="https://developers.google.com/identity/gsi/web/guides/features#upgraded_ux_on_itp_browsers">upgraded One Tap UX</a> should be enabled on browsers that support Intelligent Tracking Prevention (ITP). The default value is false
-     * @param itpSupport
+     * This field determines if the <a href="https://developers.google.com/identity/gsi/web/guides/features#upgraded_ux_on_itp_browsers">upgraded One Tap UX</a> should be enabled on browsers that support Intelligent Tracking Prevention (ITP). The default value is false.
+     * @param itpSupport true enables the upgraded UX.
      */
     public void setItpSupport(boolean itpSupport) {
         getElement().setProperty("itp_support", itpSupport);
     }
 
+    /**
+     * {@return the login hint, see {@link #setLoginHint(String)}; null if not set}
+     */
     @Nullable
     public String getLoginHint() {
         return getElement().getProperty("login_hint");
@@ -245,6 +272,9 @@ public class GoogleSignInButton extends Div {
         getElement().setProperty("login_hint", loginHint);
     }
 
+    /**
+     * {@return the Workspace domain hint, see {@link #setHd(String)}; null if not set}
+     */
     @Nullable
     public String getHd() {
         return getElement().getProperty("hd");
@@ -278,6 +308,9 @@ public class GoogleSignInButton extends Div {
         Icon
     }
 
+    /**
+     * {@return the button type}
+     */
     @NotNull
     public Type getButtonType() {
         final String type = getElement().getProperty("button_type", "standard");
@@ -310,6 +343,9 @@ public class GoogleSignInButton extends Div {
         Filled_Black;
     }
 
+    /**
+     * {@return the button theme}
+     */
     @NotNull
     public Theme getButtonTheme() {
         final String theme = getElement().getProperty("button_theme", "outline");
@@ -342,6 +378,9 @@ public class GoogleSignInButton extends Div {
         Small
     }
 
+    /**
+     * {@return the button size}
+     */
     @NotNull
     public Size getButtonSize() {
         final String size = getElement().getProperty("button_size", "large");
@@ -378,6 +417,9 @@ public class GoogleSignInButton extends Div {
         Square
     }
 
+    /**
+     * {@return the button shape}
+     */
     @NotNull
     public Shape getButtonShape() {
         var shape = getElement().getProperty("button_shape", "rectangular");
@@ -392,13 +434,31 @@ public class GoogleSignInButton extends Div {
         getElement().setProperty("button_shape", shape.name().toLowerCase());
     }
 
+    /**
+     * The button text.
+     */
     public enum ButtonText {
+        /**
+         * "Sign in with Google"
+         */
         Signin_With,
+        /**
+         * "Sign up with Google"
+         */
         Signup_With,
+        /**
+         * "Continue with Google"
+         */
         Continue_With,
+        /**
+         * "Sign in"
+         */
         Signin
     }
 
+    /**
+     * {@return the button text}
+     */
     @NotNull
     public ButtonText getButtonText() {
         final String text = getElement().getProperty("button_text", "signin_with");
@@ -417,20 +477,36 @@ public class GoogleSignInButton extends Div {
      * The alignment of the Google logo. The default value is left. This attribute only applies to the standard button type.
      */
     public enum LogoAlignment {
+        /**
+         * Left-aligns the Google logo.
+         */
         Left,
+        /**
+         * Center-aligns the Google logo.
+         */
         Center
     }
 
+    /**
+     * {@return the alignment of the Google logo}
+     */
     @NotNull
     public LogoAlignment getLogoAlignment() {
         final String align = getElement().getProperty("button_logo_alignment", "left");
         return Arrays.stream(LogoAlignment.values()).filter(it -> it.name().equalsIgnoreCase(align)).findAny().orElse(LogoAlignment.Left);
     }
 
+    /**
+     * The alignment of the Google logo. The default value is left. This attribute only applies to the standard button type.
+     * @param logoAlignment the logo alignment.
+     */
     public void setLogoAlignment(@NotNull LogoAlignment logoAlignment) {
         getElement().setProperty("button_logo_alignment", logoAlignment.name().toLowerCase());
     }
 
+    /**
+     * {@return the minimum button width, in pixels; null if not set}
+     */
     @Nullable
     public Integer getButtonMinWidth() {
         final String widthString = getElement().getProperty("button_width");

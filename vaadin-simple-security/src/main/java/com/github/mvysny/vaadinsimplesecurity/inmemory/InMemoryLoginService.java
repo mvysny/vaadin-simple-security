@@ -11,12 +11,12 @@ import javax.security.auth.login.LoginException;
 /**
  * Session-scoped service which holds currently logged-in user. Call {@link #login(String, String)}
  * to try to log in the user; call {@link #logout()} to logout user and redirect to the login page.
- * <p></p>
+ * <p>
  * Pass this service to the {@link SimpleNavigationAccessControl} when registering it as the before-navigation listener:
  * <pre>
- * val checker = SimpleNavigationAccessControl.usingService(InMemoryLoginService::get);
- * checker.setLoginView(LoginView.class);
- * ui.addBeforeEnterListener(checker);
+ * var accessControl = SimpleNavigationAccessControl.usingService(InMemoryLoginService::get);
+ * accessControl.setLoginView(LoginView.class);
+ * ui.addBeforeEnterListener(accessControl);
  * </pre>
  */
 public final class InMemoryLoginService extends AbstractLoginService<InMemoryUser> {
@@ -25,8 +25,10 @@ public final class InMemoryLoginService extends AbstractLoginService<InMemoryUse
     }
 
     /**
-     * Logs in user with given username and password. Fails with {@link LoginException}
-     * on failure.
+     * Logs in user with given username and password, looked up in {@link InMemoryUserRegistry}.
+     * @param username the username.
+     * @param password the plaintext password, as typed by the user.
+     * @throws LoginException if there's no such user or the password doesn't match.
      */
     public void login(@NotNull String username, @NotNull String password) throws LoginException {
         final InMemoryUser user = InMemoryUserRegistry.get().findByUsername(username);
@@ -42,6 +44,8 @@ public final class InMemoryLoginService extends AbstractLoginService<InMemoryUse
     /**
      * Logs in given user, no questions asked. Never fails with {@link LoginException}.
      * Expects that the user has been authenticated by an external authentication system.
+     * @param user the user to log in.
+     * @throws LoginException never thrown; kept for source compatibility with existing callers.
      */
     public void loginDirectly(@NotNull InMemoryUser user) throws LoginException {
         login(user);

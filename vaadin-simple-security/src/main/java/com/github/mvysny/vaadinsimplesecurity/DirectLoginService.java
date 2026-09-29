@@ -14,10 +14,15 @@ import java.util.Set;
  * or such.
  */
 public final class DirectLoginService extends AbstractLoginService<SimpleUserWithRoles> {
+    private DirectLoginService() {
+        // private, to prevent accidental instantiation by hand; use get()
+    }
 
     /**
      * Logs in given user, no questions asked. Never fails with {@link LoginException}.
      * Expects that the user has been authenticated by an external authentication system.
+     * @param username uniquely identifies the user, e.g. the e-mail verified by the external system.
+     * @param roles the user's roles; null means no roles.
      */
     public void login(@NotNull String username, @Nullable Set<String> roles) {
         login(new SimpleUserWithRoles(username, roles));

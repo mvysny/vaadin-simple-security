@@ -9,15 +9,15 @@ import java.util.Objects;
 /**
  * This mixin interface makes sure that the database-stored passwords are properly hashed and not stored in plaintext.
  * This makes it impossible to guess the user's password even if the database gets compromised.
- * <p></p>
- * Simply create an `User` entity and make it implement this interface. The {@link #getHashedPassword()} field should be stored in the database
+ * <p>
+ * Simply create a {@code User} entity and make it implement this interface. The {@link #getHashedPassword()} field should be stored in the database
  * as-is: it is the user's database hashed and salted and there is no practical way to obtain the original password from it.
  * When the user registers, simply call {@link #setPassword(String)} with the user-provided password.
  * The password will be hashed and the {@link #setHashedPassword(String)} field will be populated.
- * <p></p>
+ * <p>
  * After the registration, when the user tries to log in, simply call {@link #passwordMatches(String)} with the user-provided password, to check whether
  * the user provided a correct password or not.
- * <p></p>
+ * <p>
  * You can see the example of this mixin interface in the <code>InMemoryUser</code> example user class.
  */
 public interface HasPassword {
@@ -42,6 +42,7 @@ public interface HasPassword {
     /**
      * Checks if the password provided by the user at login matches with whatever password user provided during the registration.
      * @param password the password provided by the user at login.
+     * @return true if the password matches; always false if the user has no password stored (SSO-only users).
      */
     default boolean passwordMatches(@NotNull String password) {
         Objects.requireNonNull(password);

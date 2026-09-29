@@ -10,7 +10,7 @@ import java.util.Set;
 
 /**
  * A basic user representation, with username and roles. Immutable, thread-safe.
- * <p></p>
+ * <p>
  * Since {@link #username} uniquely identifies the user, this object {@link #equals(Object) equality}
  * is based on username alone - roles are ignored.
  */
@@ -45,6 +45,9 @@ public final class SimpleUserWithRoles implements Principal, Serializable {
         this(username, null);
     }
 
+    /**
+     * {@return the username, uniquely identifies the user; same as {@link #getName()}}
+     */
     @NotNull
     public String getUsername() {
         return username;
@@ -60,6 +63,10 @@ public final class SimpleUserWithRoles implements Principal, Serializable {
         return roles;
     }
 
+    /**
+     * {@return true if this user has given role}
+     * @param role the role name, case-sensitive.
+     */
     public boolean hasRole(@NotNull String role) {
         return getRoles().contains(role);
     }

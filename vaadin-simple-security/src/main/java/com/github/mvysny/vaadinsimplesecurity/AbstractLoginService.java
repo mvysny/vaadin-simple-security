@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  * LoginService is usually a session-scoped service which holds currently logged-in user.
  * The service is simply stored in VaadinSession, storing the current user to session as well. Call {@link #getCurrentUser()}
  * to obtain the current user.
- * <p></p>
+ * <p>
  * This is a skeletal implementation of the login service providing helpful methods. Your service should:
  * <ul>
  *     <li>Extend this class</li>
@@ -35,16 +35,26 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
      */
     @NotNull
     private final String mainRoutePath;
+    /**
+     * The logged-in user; null if nobody is logged in.
+     */
     @Nullable
     private U currentUser = null;
+    /**
+     * {@link #currentUser} converted by {@link #toUserWithRoles(Serializable)}; null if nobody is logged in.
+     */
     @Nullable
     private SimpleUserWithRoles currentUserWithRoles = null;
 
+    /**
+     * Creates the service; {@link #login(Serializable)} navigates to the root route {@code ""}.
+     */
     protected AbstractLoginService() {
         this("");
     }
 
     /**
+     * Creates the service with a custom landing route.
      * @param mainRoutePath The main "Welcome" route of the app. {@link #login(Serializable)} will navigate here.
      */
     protected AbstractLoginService(@NotNull String mainRoutePath) {
@@ -62,13 +72,16 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
         return currentUser;
     }
 
+    /**
+     * {@return the logged-in user as converted by {@link #toUserWithRoles(Serializable)}, or null if nobody is logged in}
+     */
     @Nullable
     public SimpleUserWithRoles getCurrentPrincipal() {
         return currentUserWithRoles;
     }
 
     /**
-     * Returns true if the user is logged in (the {@link #getCurrentUser()} is not null), false if not.
+     * {@return true if the user is logged in (the {@link #getCurrentUser()} is not null), false if not}
      */
     public boolean isLoggedIn() {
         return getCurrentUser() != null;
@@ -110,6 +123,9 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
         UI.getCurrent().getPage().reload();
     }
 
+    /**
+     * {@return the logged-in user's roles; empty if nobody is logged in}
+     */
     @NotNull
     public Set<String> getCurrentUserRoles() {
         if (currentUserWithRoles == null) {
@@ -121,11 +137,15 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
     /**
      * Converts given user to the {@link SimpleUserWithRoles} representation.
      * @param user the user, not null.
-     * @return roles of given user. May be empty if the user has no roles.
+     * @return the user's name and roles. The roles may be empty.
      */
     @NotNull
     protected abstract SimpleUserWithRoles toUserWithRoles(@NotNull U user);
 
+    /**
+     * {@return true if a user is logged in and has given role}
+     * @param role the role name, case-sensitive.
+     */
     public boolean isUserInRole(@NotNull String role) {
         return getCurrentUserRoles().contains(role);
     }
@@ -144,6 +164,8 @@ public abstract class AbstractLoginService<U extends Serializable> implements Se
      * See {@link InMemoryLoginService} for an example.
      * @param serviceClass the class of your login service.
      * @param constructor creates new instances of your login service.
+     * @param <S> your login service type.
+     * @param <U> the user type of your login service.
      * @return the service.
      */
     @NotNull

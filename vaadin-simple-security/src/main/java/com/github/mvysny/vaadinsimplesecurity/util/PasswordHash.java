@@ -37,22 +37,42 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 
-/*
- * PBKDF2 salted password hashing.
- * Author: havoc AT defuse.ca
- * www: http://crackstation.net/hashing-security.htm
+/**
+ * PBKDF2 salted password hashing:
+ * <pre>{@code
+ * String hash = PasswordHash.createHash("secret");   // "185000:<salt hex>:<hash hex>"
+ * PasswordHash.validatePassword("secret", hash);     // => true
+ * }</pre>
+ * The iteration count and salt are stored in the hash, so {@link #SALT_BYTE_SIZE},
+ * {@link #HASH_BYTE_SIZE} and {@link #PBKDF2_ITERATIONS} may be changed without breaking existing hashes.
+ * <p>
+ * Author: havoc AT defuse.ca, <a href="http://crackstation.net/hashing-security.htm">crackstation.net</a>.
  */
 public class PasswordHash
 {
+	/**
+	 * The {@link SecretKeyFactory} algorithm. Not stored in the hash: every existing hash assumes it.
+	 */
 	public static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
 
-	// The following constants may be changed without breaking existing hashes.
+	/**
+	 * Length of the random salt generated for a new hash, in bytes.
+	 */
 	public static volatile int SALT_BYTE_SIZE = 8;
-	// Spring uses 256/8=32 byte size
+	/**
+	 * Length of a new hash, in bytes. Spring uses 256/8=32.
+	 */
 	public static volatile int HASH_BYTE_SIZE = 32;
-	// Spring uses 185000; according to https://en.wikipedia.org/wiki/PBKDF2
-	// the recommended number of iterations for server-side hashing is at least 100000
+	/**
+	 * PBKDF2 iteration count for a new hash. Spring uses 185000; according to
+	 * <a href="https://en.wikipedia.org/wiki/PBKDF2">Wikipedia</a> the recommended
+	 * number of iterations for server-side hashing is at least 100000.
+	 */
 	public static volatile int PBKDF2_ITERATIONS = 185000;
+
+	private PasswordHash() {
+		// static utilities only
+	}
 
 	private static final int ITERATION_INDEX = 0;
 	private static final int SALT_INDEX = 1;

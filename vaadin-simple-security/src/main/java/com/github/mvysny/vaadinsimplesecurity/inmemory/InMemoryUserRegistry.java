@@ -10,10 +10,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * A simple in-memory singleton registry of known users. Call {@link #registerUser(InMemoryUser)}
  * to add more demo users.
- * <p></p>
+ * <p>
  * Don't forget to register {@link SimpleNavigationAccessControl} as the before-navigation listener;
  * see {@link InMemoryLoginService} for a code example.
- * <p></p>
+ * <p>
  * Thread-safe.
  */
 public final class InMemoryUserRegistry {

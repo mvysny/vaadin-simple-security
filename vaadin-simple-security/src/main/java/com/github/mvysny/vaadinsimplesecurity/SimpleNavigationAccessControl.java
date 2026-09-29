@@ -19,13 +19,16 @@ import java.util.function.Predicate;
  * Checks that the current user has rights to access given route.
  * Obtains the user from given {@link #loggedInUserSupplier} rather than from
  * {@link HttpServletRequest#getUserPrincipal()} and {@link HttpServletRequest#isUserInRole(String)}.
- * <p></p>
+ * <p>
  * Install this as a {@link BeforeEnterListener} to your UI via {@link UI#addBeforeEnterListener(BeforeEnterListener)}.
  * The best way to do that is to register your {@link VaadinServiceInitListener},
  * then install {@link UIInitListener} via {@link VaadinService#addUIInitListener(UIInitListener)},
  * then register this to your UI.
  */
 public class SimpleNavigationAccessControl extends NavigationAccessControl {
+    /**
+     * Provides the currently logged-in user, or null if nobody is logged in.
+     */
     @NotNull
     private final SerializableSupplier<SimpleUserWithRoles> loggedInUserSupplier;
 
