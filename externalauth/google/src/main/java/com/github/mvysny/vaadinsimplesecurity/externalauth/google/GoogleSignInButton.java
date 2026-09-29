@@ -402,7 +402,7 @@ public class GoogleSignInButton extends Div {
         /**
          * The rectangular-shaped button. If used for the icon button type, then it's the same as square.
          */
-        Recangular,
+        Rectangular,
         /**
          * The pill-shaped button. If used for the icon button type, then it's the same as circle.
          */
@@ -423,7 +423,7 @@ public class GoogleSignInButton extends Div {
     @NotNull
     public Shape getButtonShape() {
         var shape = getElement().getProperty("button_shape", "rectangular");
-        return Arrays.stream(Shape.values()).filter(it -> it.name().equalsIgnoreCase(shape)).findAny().orElse(Shape.Recangular);
+        return Arrays.stream(Shape.values()).filter(it -> it.name().equalsIgnoreCase(shape)).findAny().orElse(Shape.Rectangular);
     }
 
     /**

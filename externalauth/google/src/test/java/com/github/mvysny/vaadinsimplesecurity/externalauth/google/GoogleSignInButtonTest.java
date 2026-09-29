@@ -74,9 +74,11 @@ class GoogleSignInButtonTest {
         button.setButtonSize(GoogleSignInButton.Size.Small);
         assertEquals(GoogleSignInButton.Size.Small, button.getButtonSize());
 
-        assertEquals(GoogleSignInButton.Shape.Recangular, button.getButtonShape());
+        assertEquals(GoogleSignInButton.Shape.Rectangular, button.getButtonShape());
         button.setButtonShape(GoogleSignInButton.Shape.Circle);
         assertEquals(GoogleSignInButton.Shape.Circle, button.getButtonShape());
+        button.setButtonShape(GoogleSignInButton.Shape.Rectangular);
+        assertEquals("rectangular", button.getElement().getProperty("button_shape"));
 
         assertEquals(GoogleSignInButton.ButtonText.Signin_With, button.getButtonText());
         button.setButtonText(GoogleSignInButton.ButtonText.Signup_With);
